@@ -1,5 +1,6 @@
 package com.admin.coolweather.activity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import com.admin.coolweather.R;
 import com.admin.coolweather.gson.Forecast;
 import com.admin.coolweather.gson.Weather;
+import com.admin.coolweather.service.AutoUpdateService;
 import com.admin.coolweather.util.HttpUtil;
 import com.admin.coolweather.util.Utility;
 import com.bumptech.glide.Glide;
@@ -130,6 +132,7 @@ public class WeatherActivity extends AppCompatActivity
             weatherId = weather.basic.WeatherId;
             showWeatherInfo(weather);
 
+
         }
         else
         {
@@ -163,6 +166,9 @@ public class WeatherActivity extends AppCompatActivity
     public void requestWeather(final String weatherId)
     {
         String weatherUrl = "http://guolin.tech/api/weather?cityid="+weatherId +"&key=bc0418b57b2d4918819d3974ac1285d9";
+
+        Intent intent = new Intent(this, AutoUpdateService.class);
+        startService(intent);
 
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback()
         {

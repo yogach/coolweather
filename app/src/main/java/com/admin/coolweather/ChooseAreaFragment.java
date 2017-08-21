@@ -121,7 +121,7 @@ public class ChooseAreaFragment extends Fragment
                 else if(currentLevel == LEVEL_COUNTY)
                 {
                     String weatherId = countyList.get(position).getWeatherId();
-                    if(getActivity() instanceof MainActivity)
+                    if(getActivity() instanceof MainActivity)  //判断打开碎片的活动是哪个
                     {
                         Intent intent = new Intent(getActivity(), WeatherActivity.class);
                         intent.putExtra("weather_id", weatherId);
@@ -144,15 +144,15 @@ public class ChooseAreaFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                if(currentLevel == LEVEL_PROVINCE)
-                {
-                   queryCities();
-                }
-                else if(currentLevel == LEVEL_CITY)
+
+                if(currentLevel == LEVEL_CITY)
                 {
                    queryProvinces();
                 }
-
+                else if(currentLevel == LEVEL_COUNTY)
+                {
+                    queryCities();
+                }
             }
         });
         queryProvinces();
