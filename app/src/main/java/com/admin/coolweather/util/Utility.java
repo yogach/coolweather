@@ -93,7 +93,7 @@ public class Utility
                     county.setCountyName(countyObject.getString("name"));
                     county.setWeatherId(countyObject.getString("weather_id"));
                     county.setCityid(cityId);
-                    county.save();
+                    county.save();  //存入数据库中
                 }
                 return true;
             }
@@ -121,7 +121,7 @@ public class Utility
         }
         catch (Exception e)
         {
-            e.printStackTrace();;
+            e.printStackTrace();
         }
 
         return null;

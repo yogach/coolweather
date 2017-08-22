@@ -57,8 +57,7 @@ public class ChooseAreaFragment extends Fragment
 
     private ArrayAdapter<String>  adapter;
 
-    private List<String> dataList = new ArrayList<>(); //
-
+    private List<String> dataList = new ArrayList<>(); //适配器数据
     /*
     * 省列表
     * */
@@ -133,11 +132,13 @@ public class ChooseAreaFragment extends Fragment
                         WeatherActivity activity =(WeatherActivity)getActivity();
                         activity.drawerLayout.closeDrawers();
                         activity.swipeRefresh.setRefreshing(true);
+                        activity.setWeatherId(weatherId);
                         activity.requestWeather(weatherId);
                     }
                 }
             }
         });
+
 
         backButton.setOnClickListener(new View.OnClickListener()
         {
@@ -155,6 +156,7 @@ public class ChooseAreaFragment extends Fragment
                 }
             }
         });
+
         queryProvinces();
 
     }
@@ -192,7 +194,8 @@ public class ChooseAreaFragment extends Fragment
     {
         titleText.setText(selectedProvince.getProvinceName());
         backButton.setVisibility(View.VISIBLE);
-        cityList = DataSupport.where("provinceid = ?",String.valueOf(selectedProvince.getId())).find(City.class);
+        cityList = DataSupport.where("provinceid = ?",
+                String.valueOf(selectedProvince.getId())).find(City.class); //在city数据库中根据当前选择省份的provinceid 得到对应的城市列表
         if(cityList.size() > 0)
         {
             dataList.clear();
@@ -215,11 +218,12 @@ public class ChooseAreaFragment extends Fragment
      /*
      * 查询选中市内所有的县，先查询数据库没有就查服务器
      * */
-     private  void queryCounties()
+     private void queryCounties()
      {
          titleText.setText(selectedCity.getCityName());
          backButton.setVisibility(View.VISIBLE);
-         countyList = DataSupport.where("cityid = ?", String.valueOf(selectedCity.getId())).find(County.class);
+         countyList = DataSupport.where("cityid = ?",
+                 String.valueOf(selectedCity.getId())).find(County.class);
          if(countyList.size()>0)
          {
              dataList.clear();
@@ -284,6 +288,7 @@ public class ChooseAreaFragment extends Fragment
 
                 if(result)
                 {
+                    //得到数据之后重新查询一遍 显示到界面上 (需要在ui线程中显示)
                    getActivity().runOnUiThread(new Runnable()
                    {
                        @Override

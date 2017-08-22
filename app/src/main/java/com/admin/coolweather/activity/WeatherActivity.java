@@ -74,6 +74,18 @@ public class WeatherActivity extends AppCompatActivity
 
     private ImageView bingPicImg;
 
+    private String  weatherId;
+
+    public String getWeatherId()
+    {
+        return weatherId;
+    }
+
+    public void setWeatherId(String weatherId)
+    {
+        this.weatherId = weatherId;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -88,8 +100,9 @@ public class WeatherActivity extends AppCompatActivity
 //        }
         setContentView(R.layout.activity_weather);
         //初始化控件
-        swipeRefresh = (SwipeRefreshLayout)findViewById(R.id.swipe_refresh);
+        swipeRefresh = (SwipeRefreshLayout)findViewById(R.id.swipe_refresh);//下拉刷新
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         navButton = (Button)findViewById(R.id.nav_button);
 
@@ -114,11 +127,13 @@ public class WeatherActivity extends AppCompatActivity
 
         String weatherString = prefs.getString("weather",null);
 
-        final String  weatherId;
+
+
         String bingPic = prefs.getString("bing_pic",null);
+
         if(bingPic !=null)
         {
-            Glide.with(this).load(bingPic).into(bingPicImg);
+            Glide.with(this).load(bingPic).into(bingPicImg); //将图片显示到bingPicImg控件上
         }
         else
         {
@@ -129,9 +144,10 @@ public class WeatherActivity extends AppCompatActivity
         {
             //有缓存时直接解析天气数据
             Weather weather = Utility.handleWeatherResponse(weatherString);
-            weatherId = weather.basic.WeatherId;
-            showWeatherInfo(weather);
 
+            weatherId = weather.basic.WeatherId;
+
+            showWeatherInfo(weather);
 
         }
         else
