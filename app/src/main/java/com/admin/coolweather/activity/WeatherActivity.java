@@ -1,10 +1,14 @@
 package com.admin.coolweather.activity;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -20,6 +24,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.admin.coolweather.Fragment.SettingFragment;
 import com.admin.coolweather.R;
 import com.admin.coolweather.gson.Forecast;
 import com.admin.coolweather.gson.Weather;
@@ -76,6 +81,10 @@ public class WeatherActivity extends AppCompatActivity
 
     private String  weatherId;
 
+    private Button settingButton;
+
+
+
     public String getWeatherId()
     {
         return weatherId;
@@ -90,7 +99,7 @@ public class WeatherActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
+        setContentView(R.layout.activity_weather);
 //        if(Build.VERSION.SDK_INT>=21)
 //        {
 //            View decorView = getWindow().getDecorView();
@@ -98,13 +107,14 @@ public class WeatherActivity extends AppCompatActivity
 //                    View.SYSTEM_UI_FLAG_FULLSCREEN |View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
 //            getWindow().setStatusBarColor(Color.TRANSPARENT);
 //        }
-        setContentView(R.layout.activity_weather);
+
         //初始化控件
-        swipeRefresh = (SwipeRefreshLayout)findViewById(R.id.swipe_refresh);//下拉刷新
+        swipeRefresh = (SwipeRefreshLayout)findViewById(R.id.swipe_refresh);//下拉刷新控件
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
 
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         navButton = (Button)findViewById(R.id.nav_button);
+        settingButton = (Button)findViewById(R.id.setting_button);
 
         weatherLayout = (ScrollView) findViewById(R.id.weather_layout);
         titleCity = (TextView)findViewById(R.id.title_ctiy);
@@ -168,6 +178,18 @@ public class WeatherActivity extends AppCompatActivity
             }
         });
 
+        settingButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                //openSetting();
+                drawerLayout.openDrawer(GravityCompat.END);
+            }
+        });
+
+
+
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
         {
             @Override
@@ -178,6 +200,7 @@ public class WeatherActivity extends AppCompatActivity
         });
 
     }
+
 
     public void requestWeather(final String weatherId)
     {
@@ -304,7 +327,7 @@ public class WeatherActivity extends AppCompatActivity
         String comfort = "舒适度:"+weather.suggestion.comfort.brief+"\n    "+weather.suggestion.comfort.text;
         String carWash = "洗车指数:"+weather.suggestion.carwash.brief+"\n    "+weather.suggestion.carwash.text;
         String sport = "运动建议:"+weather.suggestion.sport.brief+"\n    "+weather.suggestion.sport.text;
-        String dresssuggest = "穿衣指数:" +weather.suggestion.dressSuggest.brief +"\n    "+weather.suggestion.dressSuggest.text;
+        String dressSuggest = "穿衣指数:" +weather.suggestion.dressSuggest.brief +"\n    "+weather.suggestion.dressSuggest.text;
         String fluIndex ="感冒指数:"+weather.suggestion.fluIndex.brief+"\n    "+weather.suggestion.fluIndex.text;
         String travelIndex = "旅游指数:"+weather.suggestion.travelIndex.brief+"\n    "+weather.suggestion.travelIndex.text;
         String uv = "紫外线指数:"+weather.suggestion.uv.brief+"\n    "+weather.suggestion.uv.text;
@@ -312,7 +335,7 @@ public class WeatherActivity extends AppCompatActivity
         comfortText.setText(comfort);
         carWashText.setText(carWash);
         sportText.setText(sport);
-        dressSuggestText.setText(dresssuggest);
+        dressSuggestText.setText(dressSuggest);
         fluIndexText.setText(fluIndex);
         travelIndexText.setText(travelIndex);
         uvText.setText(uv);

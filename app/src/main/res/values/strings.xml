@@ -4,4 +4,7 @@
     <string name="api_exponent">AQI指数</string>
     <string name="pm2.5">PM2.5指数</string>
     <string name="life_advice">生活建议</string>
+    <string name="settings">设置</string>
+    <string name="autoupdate_key">自动更新</string>
+    <string name="autoupdate_time">自动更新时间</string>
 </resources>

@@ -8,7 +8,9 @@
 
 
 
+
     <FrameLayout
+        android:id="@+id/frame"
         android:layout_width="368dp"
         android:layout_height="551dp"
         android:background="@color/colorPrimary"
@@ -58,10 +60,17 @@
 
             <fragment
                 android:id="@+id/choose_area_fragment"
-                android:name="com.admin.coolweather.ChooseAreaFragment"
+                android:name="com.admin.coolweather.Fragment.ChooseAreaFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"/>
+
+            <fragment
+                android:id="@+id/SettingFragment"
+                android:name="com.admin.coolweather.Fragment.SettingFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"/>
 
         </android.support.v4.widget.DrawerLayout>
 

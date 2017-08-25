@@ -1,4 +1,4 @@
-package com.admin.coolweather;
+package com.admin.coolweather.Fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.admin.coolweather.R;
 import com.admin.coolweather.activity.MainActivity;
 import com.admin.coolweather.activity.WeatherActivity;
 import com.admin.coolweather.model.City;

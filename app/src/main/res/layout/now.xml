@@ -4,6 +4,11 @@
     android:layout_height="wrap_content"
     android:layout_margin="15dp">
 
+    <!--android:layout_marginRight="10dp"-->
+    <!--android:layout_alignParentRight="true"-->
+    <!--android:layout_centerVertical="true"-->
+
+
     <TextView
         android:id="@+id/degree_text"
         android:layout_width="wrap_content"
@@ -19,4 +24,13 @@
         android:layout_gravity="end"
         android:textColor="#fff"
         android:textSize="20sp"/>
+
+    <TextView
+        android:id="@+id/title_update_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="10dp"
+        android:textColor="#fff"
+        android:textSize="12sp"/>
 </LinearLayout>
