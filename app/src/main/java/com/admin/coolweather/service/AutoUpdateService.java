@@ -22,7 +22,8 @@ import okhttp3.Response;
 
 public class AutoUpdateService extends Service
 {
-
+    private int time;
+    private boolean isautoupdate = false;
 
     @Override
     public IBinder onBind(Intent intent)
@@ -36,27 +37,45 @@ public class AutoUpdateService extends Service
     public void onStart(Intent intent, int startId)
     {
         super.onStart(intent, startId);
+        time = Integer.parseInt(intent.getStringExtra("updateTime"));
+        isautoupdate = true;
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) //定时时间到后会重新执行此函数 当前定时时间为8小时
+    public void onDestroy()
     {
-        updateWeather();
-        updateBingPIc();
-        AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        int anhour = 1*60*60*1000; //8小时对应的毫秒数
-        long  trigerAtTime = SystemClock.elapsedRealtime()  + anhour;
-        Intent i = new Intent(this,AutoUpdateService.class);
-        PendingIntent pi = PendingIntent.getService(this,0,i,0);
-        manager.cancel(pi);
-        manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,trigerAtTime,pi);
+        super.onDestroy();
+        isautoupdate = false;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        if(isautoupdate)
+        {
+            updateWeather();
+            updateBingPIc();
+            AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+            int anhour = time * 60 * 60 * 1000; //小时对应的毫秒数
+            long trigerAtTime = SystemClock.elapsedRealtime() + anhour;
+
+            Intent i = new Intent(this, AutoUpdateService.class);
+
+            PendingIntent pi = PendingIntent.getService(this, 0, i, 0); //当前动作是启动一个服务
+            manager.cancel(pi);
+
+            //该方法用于设置一次性闹钟，第一个参数表示闹钟类型，第二个参数表示闹钟执行时间，第三个参数表示闹钟响应动作。
+            //AlarmManager.ELAPSED_REALTIME_WAKEUP表示闹钟在睡眠状态下会唤醒系统并执行提示功能，该状态下闹钟也使用相对时间
+            manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigerAtTime, pi);
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
     /*
     * 更新天气信息
     * */
-    private   void updateWeather()
+    private  void updateWeather()
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString = prefs.getString("weather",null);
@@ -76,7 +95,7 @@ public class AutoUpdateService extends Service
                 @Override
                 public void onResponse(Call call, Response response) throws IOException
                 {
-                   String responText = response.body().string();
+                    String responText = response.body().string();
                     Weather mweather = Utility.handleWeatherResponse(responText);
                     if(mweather != null && "ok".equals(mweather.status))
                     {

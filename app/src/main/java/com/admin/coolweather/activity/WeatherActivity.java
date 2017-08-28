@@ -137,8 +137,6 @@ public class WeatherActivity extends AppCompatActivity
 
         String weatherString = prefs.getString("weather",null);
 
-
-
         String bingPic = prefs.getString("bing_pic",null);
 
         if(bingPic !=null)
@@ -183,7 +181,7 @@ public class WeatherActivity extends AppCompatActivity
             @Override
             public void onClick(View view)
             {
-                //openSetting();
+
                 drawerLayout.openDrawer(GravityCompat.END);
             }
         });
@@ -206,8 +204,9 @@ public class WeatherActivity extends AppCompatActivity
     {
         String weatherUrl = "http://guolin.tech/api/weather?cityid="+weatherId +"&key=bc0418b57b2d4918819d3974ac1285d9";
 
-        Intent intent = new Intent(this, AutoUpdateService.class);
-        startService(intent);
+//        //开启自动更新
+//        Intent intent = new Intent(this, AutoUpdateService.class);
+//        startService(intent);
 
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback()
         {

@@ -2,6 +2,7 @@ package com.admin.coolweather.Fragment;
 
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -27,7 +28,7 @@ import android.widget.Toast;
 import com.admin.coolweather.R;
 import com.admin.coolweather.activity.MainActivity;
 import com.admin.coolweather.activity.WeatherActivity;
-import com.admin.coolweather.util.TextWatcherUtil;
+import com.admin.coolweather.service.AutoUpdateService;
 
 
 public class SettingFragment extends Fragment
@@ -38,11 +39,9 @@ public class SettingFragment extends Fragment
 
     private TextView update_text;
 
-    private EditText updateTimeInput_text;
-
     private TableRow updateInputItem;
 
-    private boolean isshowdialog ;
+    private boolean isshowdialog;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState)
@@ -51,10 +50,26 @@ public class SettingFragment extends Fragment
 
 //        TextView title_text =(TextView)view.findViewById(R.id.title_text);
 //        title_text.setText(R.string.settings);
-         autoupdateSwitch = (SwitchCompat)view.findViewById(R.id.checkbox);
-         update_text =(TextView)view.findViewById(R.id.update_text);
+        autoupdateSwitch = (SwitchCompat)view.findViewById(R.id.checkbox);
+        update_text =(TextView)view.findViewById(R.id.update_text);
 //         updateTimeInput_text = (EditText)view.findViewById(R.id.updateTimeInput_text);
-         updateInputItem = (TableRow)view.findViewById(R.id.tablerow1);
+        updateInputItem = (TableRow)view.findViewById(R.id.tablerow1);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        isshowdialog = prefs.getBoolean("isshowdialog",false); //如果获取不到值 则设置默认值为false
+
+        if(isshowdialog)
+        {
+            autoupdateSwitch.setChecked(true);
+            update_text.setTextColor(getResources().getColor(R.color.colorBlack));
+        }
+        else
+        {
+            autoupdateSwitch.setChecked(false);
+
+            update_text.setTextColor(getResources().getColor(R.color.colorGray));
+        }
 
 
         return view;
@@ -73,9 +88,6 @@ public class SettingFragment extends Fragment
             {
                 if(ischecked)
                 {
-//                    updateTimeInput_text.setFocusableInTouchMode(true);
-//                    updateTimeInput_text.setFocusable(true);
-//                    updateTimeInput_text.requestFocus();
 
                     isshowdialog = true;
                     update_text.setTextColor(getResources().getColor(R.color.colorBlack));
@@ -83,15 +95,19 @@ public class SettingFragment extends Fragment
                 }
                 else
                 {
+                    Intent intent = new Intent(getActivity(), AutoUpdateService.class);
+                    getActivity().stopService(intent); //如果关闭则停止服务
+
                     isshowdialog = false;
                     update_text.setTextColor(getResources().getColor(R.color.colorGray));
-//                    updateTimeInput_text.setFocusable(false);
-//                    updateTimeInput_text.setFocusableInTouchMode(false);
                 }
+
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+                editor.putBoolean("isshowdialog",isshowdialog);
+                editor.apply();
             }
         });
 
-//        updateTimeInput_text.addTextChangedListener(new TextWatcherUtil(getActivity()));
 
         updateInputItem.setOnClickListener(new View.OnClickListener()
         {
@@ -104,6 +120,9 @@ public class SettingFragment extends Fragment
                 }
             }
         });
+
+
+
     }
 
     private void showAlertDialog()
@@ -129,7 +148,15 @@ public class SettingFragment extends Fragment
                 else
                 {
                     dialog.dismiss();
+
                     Toast.makeText(getActivity(), etContent.getText().toString(), Toast.LENGTH_LONG).show();
+
+                    //开启自动更新
+                    Intent intent = new Intent(getActivity(), AutoUpdateService.class);
+                    intent.putExtra("updateTime",str);
+                    getActivity().startService(intent);
+
+
                 }
             }
         });
