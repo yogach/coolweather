@@ -1,10 +1,16 @@
 <resources>
     <string name="app_name">欧酷天气</string>
     <string name="air_quality">空气质量</string>
-    <string name="api_exponent">AQI指数</string>
-    <string name="pm2.5">PM2.5指数</string>
+    <string name="api_exponent">AQI</string>
+    <string name="pm2.5">PM2.5</string>
     <string name="life_advice">生活建议</string>
     <string name="settings">设置</string>
     <string name="autoupdate_key">自动更新</string>
     <string name="autoupdate_time">自动更新时间</string>
+    <string name="pm10">PM10</string>
+    <string name="co">CO</string>
+    <string name="no2">NO2</string>
+    <string name="o3">O3</string>
+    <string name="so2">SO2</string>
+
 </resources>

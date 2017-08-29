@@ -59,15 +59,27 @@ public class WeatherActivity extends AppCompatActivity
 
     private LinearLayout forecaseLayout;
 
-    private  TextView aqiText;
+    private TextView aqiText;
 
     private TextView pm25Text;
+
+    private TextView airQualityText;
+
+    private TextView pm10Text;
+
+    private TextView no2Text;
+
+    private TextView o3Text;
+
+    private TextView so2Text;
+
+    private TextView coText;
 
     private TextView comfortText;
 
     private TextView carWashText;
 
-    private  TextView sportText;
+    private TextView sportText;
 
     private TextView uvText;
 
@@ -82,6 +94,7 @@ public class WeatherActivity extends AppCompatActivity
     private String  weatherId;
 
     private Button settingButton;
+
 
 
 
@@ -121,9 +134,20 @@ public class WeatherActivity extends AppCompatActivity
         titleUpdateTime = (TextView)findViewById(R.id.title_update_time);
         degreeText =(TextView)findViewById(R.id.degree_text);
         weatherInfoText = (TextView)findViewById(R.id.weather_info_text);
-        forecaseLayout = (LinearLayout)findViewById(R.id.forcast_layout);
+
+        forecaseLayout = (LinearLayout)findViewById(R.id.forcast_layout); //得到LinearLayout
+
         aqiText = (TextView) findViewById(R.id.aqi_text);
         pm25Text = (TextView)findViewById(R.id.pm25_text);
+        airQualityText =(TextView)findViewById(R.id.air_quality_text);
+        pm10Text = (TextView)findViewById(R.id.pm10_text);
+        no2Text =(TextView)findViewById(R.id.no2_text);
+        o3Text  =(TextView)findViewById(R.id.o3_text);
+        so2Text = (TextView)findViewById(R.id.so2_text);
+        coText = (TextView)findViewById(R.id.co_text);
+
+
+
         comfortText = (TextView)findViewById(R.id.comfort_text);
         carWashText = (TextView)findViewById(R.id.car_wash_text);
         sportText = (TextView)findViewById(R.id.sport_text);
@@ -202,7 +226,7 @@ public class WeatherActivity extends AppCompatActivity
 
     public void requestWeather(final String weatherId)
     {
-        String weatherUrl = "http://guolin.tech/api/weather?cityid="+weatherId +"&key=bc0418b57b2d4918819d3974ac1285d9";
+        String weatherUrl = "http://guolin.tech/api/weather?cityid="+weatherId +"&key=d95f0f53814741b99b42f17351766c1a";
 
 //        //开启自动更新
 //        Intent intent = new Intent(this, AutoUpdateService.class);
@@ -219,7 +243,7 @@ public class WeatherActivity extends AppCompatActivity
                     @Override
                     public void run()
                     {
-                        Toast.makeText(WeatherActivity.this,"获取天气信息失败", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(WeatherActivity.this,"更新请求失败", Toast.LENGTH_SHORT).show();
                     }
                 });
                 swipeRefresh.setRefreshing(false);
@@ -248,6 +272,7 @@ public class WeatherActivity extends AppCompatActivity
                         {
                             Toast.makeText(WeatherActivity.this,"获取天气信息失败", Toast.LENGTH_SHORT).show();
                         }
+
                         swipeRefresh.setRefreshing(false);
                     }
                 });
@@ -295,7 +320,7 @@ public class WeatherActivity extends AppCompatActivity
     private void showWeatherInfo(Weather weather)
     {
         String cirtName = weather.basic.cityName;
-        String updateTime = weather.basic.update.updateTime.split(" ")[1]+"更新";
+        String updateTime = weather.basic.update.updateTime.split(" ")[1]+"更新"; //取后面的时间
         String degree = weather.now.temperature +"°";
         String weatherInfo = weather.now.more.info;
         titleCity.setText(cirtName);
@@ -303,6 +328,7 @@ public class WeatherActivity extends AppCompatActivity
         degreeText.setText(degree);
         weatherInfoText.setText(weatherInfo);
         forecaseLayout.removeAllViews();
+
         for (Forecast forecast:weather.forecastList)
         {
             View view = LayoutInflater.from(this).inflate(R.layout.forecast_item,forecaseLayout,false);
@@ -310,6 +336,7 @@ public class WeatherActivity extends AppCompatActivity
             TextView infoText = (TextView) view.findViewById(R.id.info_text);
             TextView maxText =(TextView)view.findViewById(R.id.max_text);
             TextView minText = (TextView) view.findViewById(R.id.min_text);
+
             dateText.setText(forecast.date);
             infoText.setText(forecast.more.info);
             maxText.setText(forecast.temperature.max+"°");
@@ -321,6 +348,12 @@ public class WeatherActivity extends AppCompatActivity
         {
             aqiText.setText(weather.aqi.city.aqi);
             pm25Text.setText(weather.aqi.city.pm25);
+            coText.setText(weather.aqi.city.co);
+            so2Text.setText(weather.aqi.city.so2);
+            no2Text.setText(weather.aqi.city.no2);
+            o3Text.setText(weather.aqi.city.o3);
+            airQualityText.setText(weather.aqi.city.airQuality);
+            pm10Text.setText(weather.aqi.city.pm10);
         }
 
         String comfort = "舒适度:"+weather.suggestion.comfort.brief+"\n    "+weather.suggestion.comfort.text;
