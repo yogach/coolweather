@@ -1,78 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.admin.coolweather.activity.WeatherActivity">
+
+    >
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.admin.coolweather.activity.WeatherActivity">
 
 
+        <FrameLayout
+            android:id="@+id/frame"
+            android:layout_width="368dp"
+            android:layout_height="551dp"
+            android:background="@color/colorPrimary"
+            tools:layout_editor_absoluteY="8dp"
+            tools:layout_editor_absoluteX="8dp">
 
-
-    <FrameLayout
-        android:id="@+id/frame"
-        android:layout_width="368dp"
-        android:layout_height="551dp"
-        android:background="@color/colorPrimary"
-        tools:layout_editor_absoluteY="8dp"
-        tools:layout_editor_absoluteX="8dp">
-
-        <ImageView
-            android:id="@+id/bing_pic_img"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"/>
-
-        <android.support.v4.widget.DrawerLayout
-            android:id="@+id/drawer_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <android.support.v4.widget.SwipeRefreshLayout
-                android:id="@+id/swipe_refresh"
+            <ImageView
+                android:id="@+id/bing_pic_img"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" >
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"/>
 
-                <ScrollView
-                    android:id="@+id/weather_layout"
+            <android.support.v4.widget.DrawerLayout
+                android:id="@+id/drawer_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.v4.widget.SwipeRefreshLayout
+                    android:id="@+id/swipe_refresh"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+
+                    <ScrollView
+                        android:id="@+id/weather_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scrollbars="none"
+                        android:overScrollMode="never">
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            >
+
+                            <include
+                                android:id="@+id/title"
+                                layout="@layout/title"/>
+                            <include
+                                android:id="@+id/now"
+                                layout="@layout/now"/>
+                            <include
+                                android:id="@+id/forcast"
+                                layout="@layout/forecast"/>
+                            <include
+                                android:id="@+id/aqi"
+                                layout="@layout/aqi"/>
+                            <include
+                                android:id="@+id/suggestion"
+                                layout="@layout/suggestion"/>
+
+
+
+                        </LinearLayout>
+                    </ScrollView>
+                </android.support.v4.widget.SwipeRefreshLayout>
+
+                <fragment
+                    android:id="@+id/choose_area_fragment"
+                    android:name="com.admin.coolweather.Fragment.ChooseAreaFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scrollbars="none"
-                    android:overScrollMode="never">
+                    android:layout_gravity="start"/>
 
-                    <LinearLayout
-                        android:orientation="vertical"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        >
+                <fragment
+                    android:id="@+id/SettingFragment"
+                    android:name="com.admin.coolweather.Fragment.SettingFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="end"/>
 
-                        <include layout="@layout/title"/>
-                        <include layout="@layout/now"/>
-                        <include layout="@layout/forecast"/>
-                        <include layout="@layout/aqi"/>
-                        <include layout="@layout/suggestion"/>
+            </android.support.v4.widget.DrawerLayout>
 
+        </FrameLayout>
+    </android.support.constraint.ConstraintLayout>
 
-
-                    </LinearLayout>
-                </ScrollView>
-            </android.support.v4.widget.SwipeRefreshLayout>
-
-            <fragment
-                android:id="@+id/choose_area_fragment"
-                android:name="com.admin.coolweather.Fragment.ChooseAreaFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="start"/>
-
-            <fragment
-                android:id="@+id/SettingFragment"
-                android:name="com.admin.coolweather.Fragment.SettingFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="end"/>
-
-        </android.support.v4.widget.DrawerLayout>
-
-    </FrameLayout>
-</android.support.constraint.ConstraintLayout>
+</layout>

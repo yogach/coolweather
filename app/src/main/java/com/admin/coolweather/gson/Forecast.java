@@ -25,8 +25,10 @@ public class Forecast
 
     public class More
     {
-        @SerializedName("txt_d")
-        public  String info;
+//        @SerializedName("txt_d")
+        public String txt_d;
+
+        public String code_d;
 
     }
 }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import com.admin.coolweather.R;
 import com.admin.coolweather.activity.MainActivity;
 import com.admin.coolweather.activity.WeatherActivity;
+import com.admin.coolweather.databinding.ChooseAreaBinding;
 import com.admin.coolweather.model.City;
 import com.admin.coolweather.model.County;
 import com.admin.coolweather.model.Province;
@@ -50,11 +52,11 @@ public class ChooseAreaFragment extends Fragment
 
     private ProgressDialog progressDialog;
 
-    private TextView titleText;
-
-    private Button backButton;
-
-    private ListView listView;
+//    private TextView titleText;
+//
+//    private Button backButton;
+//
+//    private ListView listView;
 
     private ArrayAdapter<String>  adapter;
 
@@ -84,17 +86,21 @@ public class ChooseAreaFragment extends Fragment
     * */
     private  int currentLevel;
 
+    private ChooseAreaBinding binding;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.choose_area,container,false);
-        titleText = (TextView)view.findViewById(R.id.title_text);
-        backButton = (Button)view.findViewById(R.id.back_button);
-        listView = (ListView) view.findViewById(R.id.list_view);
+//        View view = inflater.inflate(R.layout.choose_area,container,false);
+//        titleText = (TextView)view.findViewById(R.id.title_text);
+//        backButton = (Button)view.findViewById(R.id.back_button);
+//        listView = (ListView) view.findViewById(R.id.list_view);
+        binding = DataBindingUtil.inflate(inflater, R.layout.choose_area, container, false);
+
         adapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1,dataList);
-        listView.setAdapter(adapter);
-        return view;
+        binding.listView.setAdapter(adapter);
+
+        return binding.getRoot();
 
 //        return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -103,7 +109,7 @@ public class ChooseAreaFragment extends Fragment
     public void onActivityCreated(@Nullable Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        binding.listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
@@ -131,8 +137,10 @@ public class ChooseAreaFragment extends Fragment
                     else if(getActivity() instanceof WeatherActivity)
                     {
                         WeatherActivity activity =(WeatherActivity)getActivity();
-                        activity.drawerLayout.closeDrawers();
-                        activity.swipeRefresh.setRefreshing(true);
+                        //activity.drawerLayout.closeDrawers();
+                        //activity.swipeRefresh.setRefreshing(true);
+                        activity.closedrawerLayout();
+                        activity.setswipeRefresh(true);
                         activity.setWeatherId(weatherId);
                         activity.requestWeather(weatherId);
                     }
@@ -141,7 +149,7 @@ public class ChooseAreaFragment extends Fragment
         });
 
 
-        backButton.setOnClickListener(new View.OnClickListener()
+        binding.backButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
@@ -167,8 +175,8 @@ public class ChooseAreaFragment extends Fragment
     * */
     private void queryProvinces()
     {
-        titleText.setText("中国");
-        backButton.setVisibility(View.GONE);
+        binding.titleText.setText("中国");
+        binding.backButton.setVisibility(View.GONE);
         provinceList = DataSupport.findAll(Province.class);
         if(provinceList.size()>0)
         {
@@ -178,7 +186,7 @@ public class ChooseAreaFragment extends Fragment
                 dataList.add(province.getProvinceName());
             }
             adapter.notifyDataSetChanged();
-            listView.setSelection(0);
+            binding.listView.setSelection(0);
             currentLevel = LEVEL_PROVINCE;
         }
         else
@@ -193,8 +201,8 @@ public class ChooseAreaFragment extends Fragment
     * */
     private void queryCities()
     {
-        titleText.setText(selectedProvince.getProvinceName());
-        backButton.setVisibility(View.VISIBLE);
+        binding.titleText.setText(selectedProvince.getProvinceName());
+        binding.backButton.setVisibility(View.VISIBLE);
         cityList = DataSupport.where("provinceid = ?",
                 String.valueOf(selectedProvince.getId())).find(City.class); //在city数据库中根据当前选择省份的provinceid 得到对应的城市列表
         if(cityList.size() > 0)
@@ -205,7 +213,7 @@ public class ChooseAreaFragment extends Fragment
                 dataList.add(city.getCityName());
             }
             adapter.notifyDataSetChanged();
-            listView.setSelection(0);
+            binding.listView.setSelection(0);
             currentLevel = LEVEL_CITY;
         }
         else
@@ -221,8 +229,8 @@ public class ChooseAreaFragment extends Fragment
      * */
      private void queryCounties()
      {
-         titleText.setText(selectedCity.getCityName());
-         backButton.setVisibility(View.VISIBLE);
+         binding.titleText.setText(selectedCity.getCityName());
+         binding.backButton.setVisibility(View.VISIBLE);
          countyList = DataSupport.where("cityid = ?",
                  String.valueOf(selectedCity.getId())).find(County.class);
          if(countyList.size()>0)
@@ -233,7 +241,7 @@ public class ChooseAreaFragment extends Fragment
                  dataList.add(county.getCountyName());
              }
              adapter.notifyDataSetChanged();
-             listView.setSelection(0);
+             binding.listView.setSelection(0);
              currentLevel = LEVEL_COUNTY;
          }
          else

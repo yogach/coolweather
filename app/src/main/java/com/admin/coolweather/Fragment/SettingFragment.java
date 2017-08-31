@@ -4,6 +4,7 @@ package com.admin.coolweather.Fragment;
 import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -15,9 +16,11 @@ import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -28,6 +31,8 @@ import android.widget.Toast;
 import com.admin.coolweather.R;
 import com.admin.coolweather.activity.MainActivity;
 import com.admin.coolweather.activity.WeatherActivity;
+import com.admin.coolweather.databinding.AlertDialogBinding;
+import com.admin.coolweather.databinding.FragmentSettingBinding;
 import com.admin.coolweather.service.AutoUpdateService;
 
 
@@ -35,25 +40,31 @@ public class SettingFragment extends Fragment
 {
     private static final String ACTIVITY_TAG="SettingFragment";
 
-    private SwitchCompat autoupdateSwitch;
-
-    private TextView update_text;
-
-    private TableRow updateInputItem;
-
+//    private SwitchCompat autoupdateSwitch;
+//
+//    private TextView update_text;
+//
+//    private TableRow updateInputItem;
+//
     private boolean isshowdialog;
+
+    private FragmentSettingBinding binding;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.fragment_setting,container,false);
+//         View view = inflater.inflate(R.layout.fragment_setting,container,false);
 
-//        TextView title_text =(TextView)view.findViewById(R.id.title_text);
-//        title_text.setText(R.string.settings);
-        autoupdateSwitch = (SwitchCompat)view.findViewById(R.id.checkbox);
-        update_text =(TextView)view.findViewById(R.id.update_text);
-//         updateTimeInput_text = (EditText)view.findViewById(R.id.updateTimeInput_text);
-        updateInputItem = (TableRow)view.findViewById(R.id.tablerow1);
+//         binding = DataBindingUtil.setContentView(getActivity(),R.layout.fragment_setting);
+
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_setting, container, false);
+
+        View rootView = binding.getRoot();
+//        autoupdateSwitch = (SwitchCompat)view.findViewById(R.id.autoupdateSwitch);
+//        update_text =(TextView)view.findViewById(R.id.update_text);
+//
+//        updateInputItem = (TableRow)view.findViewById(R.id.updateInputItem);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
@@ -61,27 +72,35 @@ public class SettingFragment extends Fragment
 
         if(isshowdialog)
         {
-            autoupdateSwitch.setChecked(true);
-            update_text.setTextColor(getResources().getColor(R.color.colorBlack));
+            binding.autoupdateSwitch.setChecked(true);
+            binding.updateText.setTextColor(getResources().getColor(R.color.colorBlack));
         }
         else
         {
-            autoupdateSwitch.setChecked(false);
+            binding.autoupdateSwitch.setChecked(false);
 
-            update_text.setTextColor(getResources().getColor(R.color.colorGray));
+            binding.updateText.setTextColor(getResources().getColor(R.color.colorGray));
         }
 
 
-        return view;
+         return rootView;
     }
 
+
+
+
+//    @Override
+//    public void onCreate(@Nullable Bundle savedInstanceState)
+//    {
+//        super.onCreate(savedInstanceState);
+//    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
 
-        autoupdateSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        binding.autoupdateSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean ischecked)
@@ -90,7 +109,7 @@ public class SettingFragment extends Fragment
                 {
 
                     isshowdialog = true;
-                    update_text.setTextColor(getResources().getColor(R.color.colorBlack));
+                    binding.updateText.setTextColor(getResources().getColor(R.color.colorBlack));
 
                 }
                 else
@@ -99,7 +118,7 @@ public class SettingFragment extends Fragment
                     getActivity().stopService(intent); //如果关闭则停止服务
 
                     isshowdialog = false;
-                    update_text.setTextColor(getResources().getColor(R.color.colorGray));
+                    binding.updateText.setTextColor(getResources().getColor(R.color.colorGray));
                 }
 
                 SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
@@ -109,7 +128,7 @@ public class SettingFragment extends Fragment
         });
 
 
-        updateInputItem.setOnClickListener(new View.OnClickListener()
+        binding.updateInputItem.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
@@ -123,17 +142,40 @@ public class SettingFragment extends Fragment
 
 
 
+
     }
 
-    private void showAlertDialog()
+//    public void onUpdateItemClick(View view)
+//    {
+//        showAlertDialog();
+//
+//
+//    }
+
+    public void showAlertDialog()
     {
         final AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
+
+//        final AlertDialogBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getActivity()), R.layout. alert_dialog, null, false);
+
         dialog.setView(LayoutInflater.from(getActivity()).inflate(R.layout.alert_dialog, null));
         dialog.show();
+
+
         dialog.getWindow().setContentView(R.layout.alert_dialog);
-        Button btnPositive = (Button) dialog.findViewById(R.id.btn_add);
+
+//        dialog.setContentView(binding.getRoot());
+//        dialog.getWindow().setContentView();
+
+//        alertDialog.setView(binding.getRoot());
+//        alertDialog.show();
+//        alertDialog.getWindow().setContentView(R.layout.alert_dialog); // 设置自定义样式
+
+
+        Button btnPositive = (Button) dialog.findViewById(R.id.btn_Positive);
         Button btnNegative = (Button) dialog.findViewById(R.id.btn_cancel);
         final EditText etContent = (EditText) dialog.findViewById(R.id.updateTimeInput_text);
+
         btnPositive.setOnClickListener(new View.OnClickListener()
         {
 
