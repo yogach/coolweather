@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="com.admin.coolweather.Bean.ItemBean"/>
+    </data>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+
+
+        <TextView
+            android:id="@+id/id_index_gallery_item_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{item.date}"
+            android:textColor="@color/colorWhite"
+            android:layout_gravity="center"
+            android:textSize="18sp"
+            />
+
+        <ImageView
+            android:id="@+id/id_index_gallery_item_image"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            app:imageUrl="@{item.imageUrl}"/>
+
+        <TextView
+            android:id="@+id/id_index_gallery_item_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorWhite"
+            android:text="@{item.info}"
+            android:textSize="18sp"
+            android:layout_gravity="center"
+            />
+
+        <TextView
+            android:id="@+id/id_index_gallery_item_text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorWhite"
+            android:text="@{item.temperature}"
+            android:textSize="18sp"
+            android:layout_gravity="center"
+            />
+
+
+    </LinearLayout>
+</layout>

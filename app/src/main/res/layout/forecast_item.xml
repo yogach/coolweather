@@ -20,10 +20,10 @@
         <ImageView
             android:id="@+id/weather_icon"
             android:layout_width="0dp"
-            android:layout_height="30sp"
+            android:layout_height="50dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:scaleType="centerCrop"
+            android:scaleType="fitXY"
             />
 
 

@@ -15,6 +15,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.ViewStubCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,11 +26,16 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.admin.coolweather.Bean.ItemBean;
 import com.admin.coolweather.Fragment.SettingFragment;
 import com.admin.coolweather.R;
+import com.admin.coolweather.adapter.BindingAdapter;
+import com.admin.coolweather.adapter.BindingAdapterItem;
 import com.admin.coolweather.databinding.ActivityWeatherBinding;
 import com.admin.coolweather.databinding.ForecastItemBinding;
+import com.admin.coolweather.databinding.RecyclerItemBinding;
 import com.admin.coolweather.gson.Forecast;
+import com.admin.coolweather.gson.HourlyForecast;
 import com.admin.coolweather.gson.Weather;
 import com.admin.coolweather.service.AutoUpdateService;
 import com.admin.coolweather.util.HttpUtil;
@@ -37,6 +43,8 @@ import com.admin.coolweather.util.Utility;
 import com.bumptech.glide.Glide;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -44,66 +52,11 @@ import okhttp3.Response;
 
 public class WeatherActivity extends AppCompatActivity
 {
-//    public SwipeRefreshLayout swipeRefresh;
-//
-//    public DrawerLayout drawerLayout;
-//
-//    private Button navButton;
-//
-//    private ScrollView weatherLayout;
-//
-//    private TextView titleCity;
-//
-//    private TextView titleUpdateTime;
-//
-//    private TextView degreeText;
-//
-//    private TextView weatherInfoText;
-//
-//    private LinearLayout forecaseLayout;
-//
-//    private TextView aqiText;
-//
-//    private TextView pm25Text;
-//
-//    private TextView airQualityText;
-//
-//    private TextView pm10Text;
-//
-//    private TextView no2Text;
-//
-//    private TextView o3Text;
-//
-//    private TextView so2Text;
-//
-//    private TextView coText;
-//
-//    private TextView comfortText;
-//
-//    private TextView carWashText;
-//
-//    private TextView sportText;
-//
-//    private TextView uvText;
-//
-//    private TextView dressSuggestText;
-//
-//    private TextView fluIndexText;
-//
-//    private TextView travelIndexText;
-//
-//    private ImageView bingPicImg;
-//
-
-//
-//    private Button settingButton;
-
-
     private String  weatherId;
 
     private ActivityWeatherBinding binding;
 
-
+    private BindingAdapter adapter;
 
     public void setWeatherId(String weatherId)
     {
@@ -114,7 +67,6 @@ public class WeatherActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_weather);
 
         binding = DataBindingUtil.setContentView(this,R.layout.activity_weather);
 
@@ -127,39 +79,15 @@ public class WeatherActivity extends AppCompatActivity
 //        }
 
         //初始化控件
-//        swipeRefresh = (SwipeRefreshLayout)findViewById(R.id.swipe_refresh);//下拉刷新控件
         binding.swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
 
-//        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-//        navButton = (Button)findViewById(R.id.nav_button);
-//        settingButton = (Button)findViewById(R.id.setting_button);
-//
-//        weatherLayout = (ScrollView) findViewById(R.id.weather_layout);
-//        titleCity = (TextView)findViewById(R.id.title_ctiy);
-//        titleUpdateTime = (TextView)findViewById(R.id.title_update_time);
-//        degreeText =(TextView)findViewById(R.id.degree_text);
-//        weatherInfoText = (TextView)findViewById(R.id.weather_info_text);
-//
-//        forecaseLayout = (LinearLayout)findViewById(R.id.forcast_layout); //得到LinearLayout
-//
-//        aqiText = (TextView) findViewById(R.id.aqi_text);
-//        pm25Text = (TextView)findViewById(R.id.pm25_text);
-//        airQualityText =(TextView)findViewById(R.id.air_quality_text);
-//        pm10Text = (TextView)findViewById(R.id.pm10_text);
-//        no2Text =(TextView)findViewById(R.id.no2_text);
-//        o3Text  =(TextView)findViewById(R.id.o3_text);
-//        so2Text = (TextView)findViewById(R.id.so2_text);
-//        coText = (TextView)findViewById(R.id.co_text);
-//
-//
-//        comfortText = (TextView)findViewById(R.id.comfort_text);
-//        carWashText = (TextView)findViewById(R.id.car_wash_text);
-//        sportText = (TextView)findViewById(R.id.sport_text);
-//        uvText = (TextView)findViewById(R.id.uv_text);
-//        dressSuggestText = (TextView)findViewById(R.id.drsg_text);
-//        fluIndexText  = (TextView)findViewById(R.id.flu_text);
-//        travelIndexText = (TextView)findViewById(R.id.trav_text);
-//        bingPicImg = (ImageView) findViewById(R.id.bing_pic_img);
+        adapter = new BindingAdapter();
+        LinearLayoutManager manager = new LinearLayoutManager(WeatherActivity.this);
+        manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+
+        binding.recylerview.setAdapter(adapter);
+        binding.recylerview.setLayoutManager(manager);
+
 
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -216,7 +144,6 @@ public class WeatherActivity extends AppCompatActivity
         });
 
 
-
         binding.swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
         {
             @Override
@@ -231,7 +158,7 @@ public class WeatherActivity extends AppCompatActivity
 
     public void requestWeather(final String weatherId)
     {
-        String weatherUrl = "http://guolin.tech/api/weather?cityid="+weatherId +"&key=d95f0f53814741b99b42f17351766c1a";
+        String weatherUrl = "http://guolin.tech/api/weather?cityid="+weatherId +"&key=bc0418b57b2d4918819d3974ac1285d9";
 
 //        //开启自动更新
 //        Intent intent = new Intent(this, AutoUpdateService.class);
@@ -353,17 +280,6 @@ public class WeatherActivity extends AppCompatActivity
 
         for (Forecast forecast:weather.forecastList)
         {
-//            View view = LayoutInflater.from(this).inflate(R.layout.forecast_item, binding.forcast.forcastLayout,false);
-//
-//            TextView dateText =(TextView) view.findViewById(R.id.date_text);
-//            TextView infoText = (TextView) view.findViewById(R.id.info_text);
-//            TextView maxText =(TextView)view.findViewById(R.id.max_text);
-//            TextView minText = (TextView) view.findViewById(R.id.min_text);
-//
-//            dateText.setText(forecast.date);
-//            infoText.setText(forecast.more.info);
-//            maxText.setText(forecast.temperature.max+"°");
-//            minText.setText(forecast.temperature.min+"°");
             final ForecastItemBinding itemBinding =  DataBindingUtil.inflate(LayoutInflater.from(this), R.layout.forecast_item,binding.forcast.forcastLayout,false);
 
 
@@ -376,6 +292,16 @@ public class WeatherActivity extends AppCompatActivity
 
             binding.forcast.forcastLayout.addView(itemBinding.getRoot());
         }
+
+        List<BindingAdapterItem> items = new ArrayList<>();
+
+        for(HourlyForecast hourlyForecast:weather.hourlyForecastList)
+        {
+            items.add(new ItemBean(hourlyForecast.weatherInfo.txt,hourlyForecast.weatherInfo.code,hourlyForecast.date,hourlyForecast.temperature));
+        }
+
+        adapter.setItems(items);
+        adapter.notifyDataSetChanged();
 
         if(weather.aqi !=null)
         {
