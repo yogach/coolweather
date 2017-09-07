@@ -13,7 +13,7 @@ public class Weather
 {
     public String status;
 
-    public  Basic basic;
+    public Basic basic;
 
     public AQI aqi;
 

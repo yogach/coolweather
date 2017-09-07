@@ -8,7 +8,7 @@
         android:layout_height="?attr/actionBarSize">
 
         <Button
-            android:id="@+id/nav_button"
+            android:id="@+id/select_button"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_marginStart="10dp"

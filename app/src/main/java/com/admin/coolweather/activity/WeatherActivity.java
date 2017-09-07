@@ -1,15 +1,20 @@
 package com.admin.coolweather.activity;
 
+import android.Manifest;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.ViewStubCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -40,6 +46,10 @@ import com.admin.coolweather.gson.Weather;
 import com.admin.coolweather.service.AutoUpdateService;
 import com.admin.coolweather.util.HttpUtil;
 import com.admin.coolweather.util.Utility;
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
 import com.bumptech.glide.Glide;
 
 import java.io.IOException;
@@ -58,6 +68,16 @@ public class WeatherActivity extends AppCompatActivity
 
     private BindingAdapter adapter;
 
+    //声明AMapLocationClient类对象
+    public AMapLocationClient mLocationClient = null;
+    //声明定位回调监听器
+    public AMapLocationListener mLocationListener;
+    //声明AMapLocationClientOption对象
+    public AMapLocationClientOption mLocationOption = null;
+
+    private static final int LOCATION_PERMISSION_CODE = 100;
+    private static final int STORAGE_PERMISSION_CODE = 101;
+
     public void setWeatherId(String weatherId)
     {
         this.weatherId = weatherId;
@@ -70,6 +90,7 @@ public class WeatherActivity extends AppCompatActivity
 
         binding = DataBindingUtil.setContentView(this,R.layout.activity_weather);
 
+        //实现透明状态栏
 //        if(Build.VERSION.SDK_INT>=21)
 //        {
 //            View decorView = getWindow().getDecorView();
@@ -78,9 +99,11 @@ public class WeatherActivity extends AppCompatActivity
 //            getWindow().setStatusBarColor(Color.TRANSPARENT);
 //        }
 
-        //初始化控件
-        binding.swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        initLocation();
+        checkLocationPermission();
 
+
+        //初始化RecyclerView适配器
         adapter = new BindingAdapter();
         LinearLayoutManager manager = new LinearLayoutManager(WeatherActivity.this);
         manager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -89,11 +112,9 @@ public class WeatherActivity extends AppCompatActivity
         binding.recylerview.setLayoutManager(manager);
 
 
-
+        //得到存储的信息的对象 并从里面得到存储下来的weather和bing_pic
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
         String weatherString = prefs.getString("weather",null);
-
         String bingPic = prefs.getString("bing_pic",null);
 
         if(bingPic !=null)
@@ -124,7 +145,8 @@ public class WeatherActivity extends AppCompatActivity
 
         }
 
-        binding.title.navButton.setOnClickListener(new View.OnClickListener()
+        //选择城市按键监听器
+        binding.title.selectButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
@@ -133,6 +155,7 @@ public class WeatherActivity extends AppCompatActivity
             }
         });
 
+        //设置按键监听器
         binding.title.settingButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -144,6 +167,9 @@ public class WeatherActivity extends AppCompatActivity
         });
 
 
+        //设置下拉刷新的控件颜色
+        binding.swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        //下拉刷新监听器
         binding.swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
         {
             @Override
@@ -153,6 +179,100 @@ public class WeatherActivity extends AppCompatActivity
             }
         });
 
+    }
+
+    //高德定位初始化
+    private void initLocation()
+    {
+        //初始化定位
+        mLocationClient = new AMapLocationClient(WeatherActivity.this);
+        //设置定位回调监听
+        mLocationClient.setLocationListener(new AMapLocationListener()
+        {
+            @Override
+            public void onLocationChanged(AMapLocation aMapLocation)
+            {
+                if (aMapLocation != null)
+                {
+                    if (aMapLocation.getErrorCode() == 0)
+                    {
+                        //可在其中解析amapLocation获取相应内容。
+                        String  abc = aMapLocation.getDistrict();//城区信息
+                        String  def = aMapLocation.getProvince();//获取省信息
+//                        System.out.println(abc);
+//                        System.out.println(def);
+
+                    }
+                    else
+                    {
+                        //定位失败时，可通过ErrCode（错误码）信息来确定失败的原因，errInfo是错误信息，详见错误码表。
+                        Log.e("AmapError","location Error, ErrCode:"
+                                + aMapLocation.getErrorCode() + ", errInfo:"
+                                + aMapLocation.getErrorInfo());
+                    }
+                }
+            }
+        });
+        //初始化AMapLocationClientOption对象
+        mLocationOption = new AMapLocationClientOption();
+        //设置定位模式为AMapLocationMode.Battery_Saving，低功耗模式。
+        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Battery_Saving);
+
+        //获取最近3s内精度最高的一次定位结果：
+        //设置setOnceLocationLatest(boolean b)接口为true，启动定位时SDK会返回最近3s内精度最高的一次定位结果。如果设置其为true，setOnceLocation(boolean b)接口也会被设置为true，反之不会，默认为false。
+        mLocationOption.setOnceLocationLatest(true);
+
+        //给定位客户端对象设置定位参数
+        mLocationClient.setLocationOption(mLocationOption);
+
+    }
+
+
+
+    private void checkLocationPermission()
+    {
+        // 检查是否有定位权限
+        // 检查权限的方法: ContextCompat.checkSelfPermission()两个参数分别是Context和权限名.
+        // 返回PERMISSION_GRANTED是有权限，PERMISSION_DENIED没有权限
+        if (ContextCompat.checkSelfPermission(WeatherActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED)
+        {
+            //没有权限，向系统申请该权限。
+//            Log.i("MY","没有权限");
+//            requestPermission(LOCATION_PERMISSION_CODE);
+          //  LOCATION_PERMISSION_CODE
+
+            //申请定位权限
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                    LOCATION_PERMISSION_CODE);//自定义的code
+        }
+        else
+        {
+            //已经获得权限，则执行定位请求。
+            Toast.makeText(WeatherActivity.this, "已获取定位权限",Toast.LENGTH_SHORT).show();
+
+            startLocation();
+
+        }
+    }
+
+    /**
+     * 开始定位
+     */
+    private void startLocation()
+    {
+        // 启动定位
+        mLocationClient.startLocation();
+      //  Log.i("MY","startLocation");
+    }
+    /**
+     * 停止定位
+     */
+    private void stopLocation()
+    {
+        // 停止定位
+        mLocationClient.stopLocation();
     }
 
 
@@ -345,10 +465,13 @@ public class WeatherActivity extends AppCompatActivity
         binding.swipeRefresh.setRefreshing(state);
 
     }
-//    public void opendrawerLayout()
-//    {
-//        binding.drawerLayout.openDrawer();
-//    }
 
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        startLocation();
+
+    }
 }
