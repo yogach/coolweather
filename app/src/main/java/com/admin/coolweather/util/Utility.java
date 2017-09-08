@@ -2,15 +2,21 @@ package com.admin.coolweather.util;
 
 import android.text.TextUtils;
 
+import com.admin.coolweather.gson.Basic;
+import com.admin.coolweather.gson.SearchCity;
 import com.admin.coolweather.gson.Weather;
 import com.admin.coolweather.model.City;
 import com.admin.coolweather.model.County;
 import com.admin.coolweather.model.Province;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by admin on 2017/8/15.
@@ -128,5 +134,36 @@ public class Utility
     }
 
 
+    public static ArrayList<SearchCity> handleBasicResponse(String response)
+    {
+        try
+        {
+            ArrayList<SearchCity> searchCity = new ArrayList<>();
+
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray  jsonArray = jsonObject.getJSONArray("HeWeather5");
+
+
+            for(int i= 0 ;i< jsonArray.length();i++)
+            {
+                String searchContent = jsonArray.getJSONObject(i).toString();
+
+                searchCity.add(new Gson().fromJson(searchContent,SearchCity.class));
+            }
+
+//              Gson gson = new Gson();
+//              List<Basic> basicList = gson.fromJson(response,new TypeToken<List<Basic>>(){}.getType());
+//
+//              return basicList;
+            return  searchCity;
+         //  return  new Gson().fromJson(searchContent,SearchCity.class);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
 }

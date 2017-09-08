@@ -12,6 +12,8 @@ public class Basic
     public String cityName;
     @SerializedName("id")
     public String WeatherId;
+    @SerializedName("prov")
+    public String provinceName;
 
     public Update update;
 

@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
+import android.nfc.Tag;
 import android.os.Build;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -40,8 +41,10 @@ import com.admin.coolweather.adapter.BindingAdapterItem;
 import com.admin.coolweather.databinding.ActivityWeatherBinding;
 import com.admin.coolweather.databinding.ForecastItemBinding;
 import com.admin.coolweather.databinding.RecyclerItemBinding;
+import com.admin.coolweather.gson.Basic;
 import com.admin.coolweather.gson.Forecast;
 import com.admin.coolweather.gson.HourlyForecast;
+import com.admin.coolweather.gson.SearchCity;
 import com.admin.coolweather.gson.Weather;
 import com.admin.coolweather.service.AutoUpdateService;
 import com.admin.coolweather.util.HttpUtil;
@@ -64,6 +67,8 @@ public class WeatherActivity extends AppCompatActivity
 {
     private String  weatherId;
 
+    private static final String  TAG = "WeatherActivity";
+
     private ActivityWeatherBinding binding;
 
     private BindingAdapter adapter;
@@ -77,6 +82,9 @@ public class WeatherActivity extends AppCompatActivity
 
     private static final int LOCATION_PERMISSION_CODE = 100;
     private static final int STORAGE_PERMISSION_CODE = 101;
+
+
+//    public  String city ="abc";
 
     public void setWeatherId(String weatherId)
     {
@@ -175,7 +183,9 @@ public class WeatherActivity extends AppCompatActivity
             @Override
             public void onRefresh()
             {
+                startLocation();
                 requestWeather(weatherId);
+
             }
         });
 
@@ -197,11 +207,14 @@ public class WeatherActivity extends AppCompatActivity
                     if (aMapLocation.getErrorCode() == 0)
                     {
                         //可在其中解析amapLocation获取相应内容。
-                        String  abc = aMapLocation.getDistrict();//城区信息
-                        String  def = aMapLocation.getProvince();//获取省信息
-//                        System.out.println(abc);
-//                        System.out.println(def);
+                        String  district = aMapLocation.getDistrict();//城区信息
+                        String  province = aMapLocation.getProvince();//获取省信息
+//                        city =  aMapLocation.getCity();//城市信息
 
+//                        System.out.println(abc);
+//                        System.out.println(province);
+//                        System.out.println(city);
+                        SearchDistrict(district,province);
                     }
                     else
                     {
@@ -252,7 +265,7 @@ public class WeatherActivity extends AppCompatActivity
             //已经获得权限，则执行定位请求。
             Toast.makeText(WeatherActivity.this, "已获取定位权限",Toast.LENGTH_SHORT).show();
 
-            startLocation();
+          //  startLocation();
 
         }
     }
@@ -275,6 +288,46 @@ public class WeatherActivity extends AppCompatActivity
         mLocationClient.stopLocation();
     }
 
+
+    public void SearchDistrict(String city , final String province)
+    {
+        final String searchUrl = "https://api.heweather.com/v5/search?city="+city+"&key=bc0418b57b2d4918819d3974ac1285d9";
+
+
+        HttpUtil.sendOkHttpRequest(searchUrl, new Callback()
+        {
+            @Override
+            public void onFailure(Call call, IOException e)
+            {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException
+            {
+
+                final String responseText = response.body().string();
+                final ArrayList<SearchCity> searchCityList = Utility.handleBasicResponse(responseText);
+
+                String  mpro = province.replace("省","");
+
+                if(searchCityList!=null )
+                {
+                    for(SearchCity searchCity:searchCityList)
+                    {
+                       if(searchCity.basic.provinceName.equals(mpro)) //如果查询到相同的省名的话
+                       {
+//                           abc = searchCity.basic.WeatherId;  //记录查询到天气id
+                           weatherId = searchCity.basic.WeatherId;
+                           break;
+                       }
+                    }
+                }
+
+            }
+        });
+
+    }
 
     public void requestWeather(final String weatherId)
     {
@@ -388,7 +441,7 @@ public class WeatherActivity extends AppCompatActivity
 
     private void showWeatherInfo(Weather weather)
     {
-        String cirtName = weather.basic.cityName;
+        String cirtName = weather.basic.cityName+"区";
         String updateTime = weather.basic.update.updateTime.split(" ")[1]+"更新"; //将字符串根据空格分成两段 取后面的时间
         String degree = weather.now.temperature +"°";
         String weatherInfo = weather.now.more.info;
