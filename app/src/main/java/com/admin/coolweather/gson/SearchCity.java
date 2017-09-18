@@ -15,4 +15,6 @@ public class SearchCity
 
     public Basic basic;
 
+
+    public String status;
 }

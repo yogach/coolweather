@@ -25,6 +25,16 @@
             android:textColor="#fff"
             android:textSize="20sp"/>
 
+        <ImageView
+            android:id="@+id/local"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_toRightOf="@+id/title_ctiy"
+            android:background="@drawable/location"
+            android:layout_centerInParent="true"
+            android:tint="@color/colorPrimary"
+            />
+
         <Button
             android:id="@+id/setting_button"
             android:layout_width="20dp"

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+
+    >
+
+    <data>
+        <variable
+            name="item"
+            type="com.admin.coolweather.Bean.CityManagementItemBean"/>
+
+
+    </data>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:tools="http://schemas.android.com/tools"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_margin="15dp"
+
+                    >
+
+        <TextView
+            android:id="@+id/city_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@{item.cityName}"
+            android:textSize="18dp"
+            />
+
+        <ImageView
+            android:tint="@color/colorPrimary"
+            android:id="@+id/islocation"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="center_vertical"
+            android:layout_toEndOf="@+id/city_name"
+            android:src="@drawable/location"
+            android:visibility="invisible"
+            />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+
+            >
+
+            <TextView
+                android:id="@+id/temperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{item.temperature}"
+                android:textSize="18dp"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{item.weatherInfo}"
+                android:layout_below="@+id/temperature"
+                android:textSize="10dp"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+
+</layout>

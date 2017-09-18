@@ -6,7 +6,7 @@
 
         <variable
             name="item"
-            type="com.admin.coolweather.Bean.ItemBean"/>
+            type="com.admin.coolweather.Bean.HourlyForecaseItemBean"/>
     </data>
 
     <LinearLayout

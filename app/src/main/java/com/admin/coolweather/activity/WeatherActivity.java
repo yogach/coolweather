@@ -1,52 +1,35 @@
 package com.admin.coolweather.activity;
 
 import android.Manifest;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
-import android.graphics.Color;
-import android.nfc.Tag;
-import android.os.Build;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.ViewStubCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.admin.coolweather.Bean.ItemBean;
-import com.admin.coolweather.Fragment.SettingFragment;
+import com.admin.coolweather.Bean.HourlyForecaseItemBean;
 import com.admin.coolweather.R;
 import com.admin.coolweather.adapter.BindingAdapter;
 import com.admin.coolweather.adapter.BindingAdapterItem;
 import com.admin.coolweather.databinding.ActivityWeatherBinding;
 import com.admin.coolweather.databinding.ForecastItemBinding;
-import com.admin.coolweather.databinding.RecyclerItemBinding;
-import com.admin.coolweather.gson.Basic;
 import com.admin.coolweather.gson.Forecast;
 import com.admin.coolweather.gson.HourlyForecast;
 import com.admin.coolweather.gson.SearchCity;
 import com.admin.coolweather.gson.Weather;
-import com.admin.coolweather.service.AutoUpdateService;
 import com.admin.coolweather.util.HttpUtil;
 import com.admin.coolweather.util.Utility;
 import com.amap.api.location.AMapLocation;
@@ -84,8 +67,6 @@ public class WeatherActivity extends AppCompatActivity
     private static final int STORAGE_PERMISSION_CODE = 101;
 
 
-//    public  String city ="abc";
-
     public void setWeatherId(String weatherId)
     {
         this.weatherId = weatherId;
@@ -110,7 +91,6 @@ public class WeatherActivity extends AppCompatActivity
         initLocation();
         checkLocationPermission();
 
-
         //初始化RecyclerView适配器
         adapter = new BindingAdapter();
         LinearLayoutManager manager = new LinearLayoutManager(WeatherActivity.this);
@@ -119,10 +99,9 @@ public class WeatherActivity extends AppCompatActivity
         binding.recylerview.setAdapter(adapter);
         binding.recylerview.setLayoutManager(manager);
 
-
         //得到存储的信息的对象 并从里面得到存储下来的weather和bing_pic
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String weatherString = prefs.getString("weather",null);
+        final String weatherString = prefs.getString("weather",null);
         String bingPic = prefs.getString("bing_pic",null);
 
         if(bingPic !=null)
@@ -159,7 +138,10 @@ public class WeatherActivity extends AppCompatActivity
             @Override
             public void onClick(View view)
             {
-                binding.drawerLayout.openDrawer(GravityCompat.START);
+//                binding.drawerLayout.openDrawer(GravityCompat.START);
+
+                Intent intent = new Intent(WeatherActivity.this, SearchCityActivity.class);
+                startActivityForResult(intent, 0);
             }
         });
 
@@ -170,7 +152,9 @@ public class WeatherActivity extends AppCompatActivity
             public void onClick(View view)
             {
 
-                binding.drawerLayout.openDrawer(GravityCompat.END);
+                Intent intent =new Intent(WeatherActivity.this , SettingActivity.class);
+                WeatherActivity.this.startActivity(intent);
+               // binding.drawerLayout.openDrawer(GravityCompat.END);
             }
         });
 
@@ -191,6 +175,22 @@ public class WeatherActivity extends AppCompatActivity
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == 1)
+        {
+            //closedrawerLayout(); //关闭显示的fragment
+//            Log.d(TAG,"返回天气信息");
+            setswipeRefresh(true);
+            setWeatherId(data.getStringExtra("weatherId"));
+            requestWeather(data.getStringExtra("weatherId"));
+            notShowLocationIcon();
+
+        }
+    }
     //高德定位初始化
     private void initLocation()
     {
@@ -209,12 +209,8 @@ public class WeatherActivity extends AppCompatActivity
                         //可在其中解析amapLocation获取相应内容。
                         String  district = aMapLocation.getDistrict();//城区信息
                         String  province = aMapLocation.getProvince();//获取省信息
-//                        city =  aMapLocation.getCity();//城市信息
-
-//                        System.out.println(abc);
-//                        System.out.println(province);
-//                        System.out.println(city);
                         SearchDistrict(district,province);
+
                     }
                     else
                     {
@@ -254,7 +250,6 @@ public class WeatherActivity extends AppCompatActivity
             //没有权限，向系统申请该权限。
 //            Log.i("MY","没有权限");
 //            requestPermission(LOCATION_PERMISSION_CODE);
-          //  LOCATION_PERMISSION_CODE
 
             //申请定位权限
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
@@ -263,7 +258,7 @@ public class WeatherActivity extends AppCompatActivity
         else
         {
             //已经获得权限，则执行定位请求。
-            Toast.makeText(WeatherActivity.this, "已获取定位权限",Toast.LENGTH_SHORT).show();
+//            Toast.makeText(WeatherActivity.this, "已获取定位权限",Toast.LENGTH_SHORT).show();
 
           //  startLocation();
 
@@ -277,7 +272,6 @@ public class WeatherActivity extends AppCompatActivity
     {
         // 启动定位
         mLocationClient.startLocation();
-      //  Log.i("MY","startLocation");
     }
     /**
      * 停止定位
@@ -317,16 +311,15 @@ public class WeatherActivity extends AppCompatActivity
                     {
                        if(searchCity.basic.provinceName.equals(mpro)) //如果查询到相同的省名的话
                        {
-//                           abc = searchCity.basic.WeatherId;  //记录查询到天气id
+                           //记录查询到天气id
                            weatherId = searchCity.basic.WeatherId;
+                           binding.title.local.setVisibility(View.VISIBLE);
                            break;
                        }
                     }
                 }
-
             }
         });
-
     }
 
     public void requestWeather(final String weatherId)
@@ -399,7 +392,6 @@ public class WeatherActivity extends AppCompatActivity
             @Override
             public void onFailure(Call call, IOException e)
             {
-//                Toast.makeText(WeatherActivity.this,"网址错误", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
 
@@ -441,7 +433,7 @@ public class WeatherActivity extends AppCompatActivity
 
     private void showWeatherInfo(Weather weather)
     {
-        String cirtName = weather.basic.cityName+"区";
+        String cirtName = weather.basic.cityName;
         String updateTime = weather.basic.update.updateTime.split(" ")[1]+"更新"; //将字符串根据空格分成两段 取后面的时间
         String degree = weather.now.temperature +"°";
         String weatherInfo = weather.now.more.info;
@@ -466,11 +458,13 @@ public class WeatherActivity extends AppCompatActivity
             binding.forcast.forcastLayout.addView(itemBinding.getRoot());
         }
 
-        List<BindingAdapterItem> items = new ArrayList<>();
+
+        ArrayList<BindingAdapterItem> items = new ArrayList<>();
 
         for(HourlyForecast hourlyForecast:weather.hourlyForecastList)
         {
-            items.add(new ItemBean(hourlyForecast.weatherInfo.txt,hourlyForecast.weatherInfo.code,hourlyForecast.date,hourlyForecast.temperature));
+            items.add(new HourlyForecaseItemBean(hourlyForecast.weatherInfo.txt,hourlyForecast.weatherInfo.code,hourlyForecast.date,hourlyForecast.temperature));
+
         }
 
         adapter.setItems(items);
@@ -487,6 +481,7 @@ public class WeatherActivity extends AppCompatActivity
             binding.aqi.airQualityText.setText(weather.aqi.city.airQuality);
             binding.aqi.pm10Text.setText(weather.aqi.city.pm10);
         }
+
 
         String comfort = "舒适度:"+weather.suggestion.comfort.brief+"\n    "+weather.suggestion.comfort.text;
         String carWash = "洗车指数:"+weather.suggestion.carwash.brief+"\n    "+weather.suggestion.carwash.text;
@@ -508,6 +503,7 @@ public class WeatherActivity extends AppCompatActivity
 
     }
 
+    //
     public void closedrawerLayout()
     {
         binding.drawerLayout.closeDrawers();
@@ -519,7 +515,13 @@ public class WeatherActivity extends AppCompatActivity
 
     }
 
+    //不显示定位标志
+    public void notShowLocationIcon()
+    {
+        binding.title.local.setVisibility(View.INVISIBLE);
+    }
 
+    // 当用户选择定位权限 允许或拒绝后，会回调onRequestPermissionsResult方法, 该方法类似于onActivityResult方法。
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
@@ -527,4 +529,6 @@ public class WeatherActivity extends AppCompatActivity
         startLocation();
 
     }
+
+
 }

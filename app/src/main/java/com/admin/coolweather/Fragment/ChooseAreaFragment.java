@@ -52,11 +52,6 @@ public class ChooseAreaFragment extends Fragment
 
     private ProgressDialog progressDialog;
 
-//    private TextView titleText;
-//
-//    private Button backButton;
-//
-//    private ListView listView;
 
     private ArrayAdapter<String>  adapter;
 
@@ -91,10 +86,7 @@ public class ChooseAreaFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState)
     {
-//        View view = inflater.inflate(R.layout.choose_area,container,false);
-//        titleText = (TextView)view.findViewById(R.id.title_text);
-//        backButton = (Button)view.findViewById(R.id.back_button);
-//        listView = (ListView) view.findViewById(R.id.list_view);
+
         binding = DataBindingUtil.inflate(inflater, R.layout.choose_area, container, false);
 
         adapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1,dataList);
@@ -102,7 +94,6 @@ public class ChooseAreaFragment extends Fragment
 
         return binding.getRoot();
 
-//        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
@@ -132,17 +123,17 @@ public class ChooseAreaFragment extends Fragment
                         Intent intent = new Intent(getActivity(), WeatherActivity.class);
                         intent.putExtra("weather_id", weatherId);
                         startActivity(intent);
-                        getActivity().finish();
+                        getActivity().finish();  //结束activity
                     }
                     else if(getActivity() instanceof WeatherActivity)
                     {
                         WeatherActivity activity =(WeatherActivity)getActivity();
-                        //activity.drawerLayout.closeDrawers();
-                        //activity.swipeRefresh.setRefreshing(true);
+
                         activity.closedrawerLayout();
                         activity.setswipeRefresh(true);
                         activity.setWeatherId(weatherId);
                         activity.requestWeather(weatherId);
+                        activity.notShowLocationIcon();
                     }
                 }
             }

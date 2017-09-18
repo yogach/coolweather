@@ -15,7 +15,7 @@ import com.admin.coolweather.BR;
  * Created by admin on 2017/9/4.
  */
 
-public class ItemBean extends BaseObservable implements BindingAdapterItem
+public class HourlyForecaseItemBean extends BaseObservable implements BindingAdapterItem
 {
     private String info;
     private String code;
@@ -28,7 +28,7 @@ public class ItemBean extends BaseObservable implements BindingAdapterItem
         return R.layout.recycler_item;
     }
 
-    public ItemBean(String info,String code, String date, String temperature)
+    public HourlyForecaseItemBean(String info, String code, String date, String temperature)
     {
         this.info = info;
         this.code = code;
@@ -73,7 +73,6 @@ public class ItemBean extends BaseObservable implements BindingAdapterItem
     {
         // The URL will usually come from a model (i.e Profile)
         return  "https://cdn.heweather.com/cond_icon/"+code+".png";
-
     }
 
     @BindingAdapter({"imageUrl"})

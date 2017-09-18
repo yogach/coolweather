@@ -4,9 +4,11 @@ import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.admin.coolweather.BR;
+import com.admin.coolweather.Base.OnItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,8 @@ public class BindingAdapter extends RecyclerView.Adapter<BindingAdapter.BindingH
 {
 
     List<BindingAdapterItem> items = new ArrayList<>();
+
+    private OnItemClickListener  mOnItemClickListener = null;
 
     public List<BindingAdapterItem> getItems()
     {
@@ -37,16 +41,39 @@ public class BindingAdapter extends RecyclerView.Adapter<BindingAdapter.BindingH
     public BindingHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         ViewDataBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), viewType, parent, false);
+
         return new BindingHolder(binding);
+    }
+
+    /*
+    * 设置item点击事件
+    * */
+    public void setOnItemClickListener(OnItemClickListener OnItemClickListener)
+    {
+        this.mOnItemClickListener = OnItemClickListener;
     }
 
     /*
     * 数据绑定
     * */
     @Override
-    public void onBindViewHolder(BindingHolder holder, int position)
+    public void onBindViewHolder(BindingHolder holder, final int position)
     {
         holder.bindData(items.get(position));
+
+        if(mOnItemClickListener!=null)
+        {
+            holder.itemView.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    mOnItemClickListener.onItemClick(position);
+                }
+            });
+
+        }
+
     }
 
     @Override
@@ -61,7 +88,7 @@ public class BindingAdapter extends RecyclerView.Adapter<BindingAdapter.BindingH
         return items.get(position).getViewType();
     }
 
-    static class BindingHolder extends RecyclerView.ViewHolder
+    public class BindingHolder extends RecyclerView.ViewHolder
     {
 
         ViewDataBinding binding;

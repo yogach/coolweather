@@ -45,6 +45,12 @@
 
         <activity android:name=".activity.WeatherActivity" />
 
+        <activity android:name=".activity.SettingActivity"/>
+
+        <activity android:name=".activity.CityManagementActivity"/>
+
+        <activity android:name=".activity.SearchCityActivity"/>
+
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="d45a896486746876bc441fb66aa76f76"/>
@@ -56,8 +62,6 @@
             android:name=".service.AutoUpdateService"
             android:enabled="true"
             android:exported="true"/>
-
-
 
     </application>
 
