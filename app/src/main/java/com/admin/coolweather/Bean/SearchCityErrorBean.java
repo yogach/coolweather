@@ -15,6 +15,6 @@ public class SearchCityErrorBean extends BaseObservable implements BindingAdapte
     @Override
     public int getViewType()
     {
-        return R.layout.search_city_error_layout;
+        return R.layout.search_city_error;
     }
 }

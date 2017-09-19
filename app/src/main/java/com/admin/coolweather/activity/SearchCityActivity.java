@@ -83,7 +83,7 @@ public class SearchCityActivity extends AppCompatActivity
         binding.searchCityRlvList.setLayoutManager(manager);
         binding.searchCityRlvList.addItemDecoration(new DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL_LIST)); //设置项目分隔线
-        binding.searchCityRlvList.addItemDecoration(new SpaceItemDecoration(30));
+//        binding.searchCityRlvList.addItemDecoration(new SpaceItemDecoration(10));
 
 
         binding.backButton.setOnClickListener(new View.OnClickListener()
@@ -115,30 +115,6 @@ public class SearchCityActivity extends AppCompatActivity
         });
     }
 
-//    private TextWatcher watcher = new TextWatcher()
-//    {
-//        @Override
-//        public void beforeTextChanged(CharSequence s, int start, int count, int after)
-//        {
-//            Log.i(TAG, "输入文本之前的状态");
-//
-//        }
-//
-//        @Override
-//        public void onTextChanged(CharSequence s, int start, int before, int count)
-//        {
-//            Log.i(TAG, "输入文字中的状态，count是一次性输入字符数");
-//        }
-//
-//        @Override
-//        public void afterTextChanged(Editable s)
-//        {
-//            Log.i(TAG, "输入文字后的状态");
-////            Toast.makeText(this,s.toString(),Toast.LENGTH_SHORT).show();
-//            Toast.makeText(SearchCityActivity.this, s.toString(), Toast.LENGTH_LONG).show();
-//            SearchCity(s.toString());
-//        }
-//    };
 
 
     public void SearchCity(String city)
@@ -169,25 +145,25 @@ public class SearchCityActivity extends AppCompatActivity
                         ArrayList<BindingAdapterItem> items = new ArrayList<>();
 
 //                            items.clear();
-                            weatherIdList.clear();
-                            for(SearchCity searchCity:searchCityList)
+                        weatherIdList.clear();
+                        for (SearchCity searchCity : searchCityList)
+                        {
+                            //如果输入的结果是对的 必定会返回一个或多个 status为ok数组项
+                            //当返回结果是unknown city时则不存在其他为ok的数组项
+                            if (searchCity.status.equals("ok"))
                             {
-                                //如果输入的结果是对的 必定会返回一个或多个 status为ok数组项
-                                //当返回结果是unknown city时则不存在其他为ok的数组项
-                                if(searchCity.status.equals("ok"))
-                                {
-                                    items.add(new SearchCityItemBean(searchCity.basic.cityName + "-" + searchCity.basic.provinceName + "-" + searchCity.basic.countryName));
-                                    weatherIdList.add(searchCity.basic.WeatherId);
-                                }
-                                else if(searchCity.status.equals("unknown city"))
-                                {
-                                    items.add(new SearchCityErrorBean());
-                                    break;
-                                }
+                                items.add(new SearchCityItemBean(searchCity.basic.cityName + "-" + searchCity.basic.provinceName + "-" + searchCity.basic.countryName));
+                                weatherIdList.add(searchCity.basic.WeatherId);
                             }
+                            else if (searchCity.status.equals("unknown city"))
+                            {
+                                items.add(new SearchCityErrorBean());
+                                break;
+                            }
+                        }
 
-                            adapter.setItems(items);
-                            adapter.notifyDataSetChanged();
+                        adapter.setItems(items);
+                        adapter.notifyDataSetChanged();
 
                     }
                 });

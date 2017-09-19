@@ -51,7 +51,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{item.temperature}"
-                android:textSize="18dp"
+                android:textSize="18sp"
                 />
 
             <TextView
@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:text="@{item.weatherInfo}"
                 android:layout_below="@+id/temperature"
-                android:textSize="10dp"/>
+                android:textSize="10sp"/>
 
         </RelativeLayout>
 
