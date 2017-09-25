@@ -1,4 +1,4 @@
-package com.admin.coolweather.Base;
+package com.admin.coolweather.Base.recycleview;
 
 import android.view.View;
 

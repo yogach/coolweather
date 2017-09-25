@@ -1,4 +1,6 @@
-package com.admin.coolweather.Base;
+package com.admin.coolweather.Base.recycleview;
+
+import android.view.View;
 
 /**
  * Created with Android Studio.
@@ -9,5 +11,5 @@ package com.admin.coolweather.Base;
  */
 public interface OnItemLongClickListener {
 
-    void onItemClick(int position);
+    void onItemClick(View view,int position);
 }

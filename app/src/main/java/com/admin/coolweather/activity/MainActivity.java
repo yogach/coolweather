@@ -30,6 +30,7 @@ import com.admin.coolweather.gson.Forecast;
 import com.admin.coolweather.gson.HourlyForecast;
 import com.admin.coolweather.gson.SearchCity;
 import com.admin.coolweather.gson.Weather;
+import com.admin.coolweather.model.City;
 import com.admin.coolweather.util.HttpUtil;
 import com.admin.coolweather.util.Utility;
 import com.amap.api.location.AMapLocation;
@@ -37,6 +38,8 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.bumptech.glide.Glide;
+
+import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,11 +49,11 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class MainActivity  extends AppCompatActivity
+public class MainActivity extends AppCompatActivity
 {
-    private String  weatherId;
+    private String weatherId;
 
-    private static final String  TAG = "WeatherActivity";
+    private static final String TAG = "WeatherActivity";
 
     private ActivityWeatherBinding binding;
 
@@ -77,7 +80,7 @@ public class MainActivity  extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
 
-        binding = DataBindingUtil.setContentView(this,R.layout.activity_weather);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_weather);
 
         //实现透明状态栏
 //        if(Build.VERSION.SDK_INT>=21)
@@ -88,10 +91,6 @@ public class MainActivity  extends AppCompatActivity
 //            getWindow().setStatusBarColor(Color.TRANSPARENT);
 //        }
 
-        initLocation();
-        checkLocationPermission();
-
-
         //初始化RecyclerView适配器
         adapter = new BindingAdapter();
         LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this);
@@ -100,38 +99,9 @@ public class MainActivity  extends AppCompatActivity
         binding.recylerview.setAdapter(adapter);
         binding.recylerview.setLayoutManager(manager);
 
-        //得到存储的信息的对象 并从里面得到存储下来的weather和bing_pic
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        final String weatherString = prefs.getString("weather",null);
-        String bingPic = prefs.getString("bing_pic",null);
-
-        if(bingPic !=null)
-        {
-            Glide.with(this).load(bingPic).into(binding.bingPicImg); //将图片显示到bingPicImg控件上
-        }
-        else
-        {
-            loadBingPic();
-        }
-
-        if(weatherString!=null)
-        {
-            //有缓存时直接解析天气数据
-            Weather weather = Utility.handleWeatherResponse(weatherString);
-
-            weatherId = weather.basic.WeatherId;
-
-            showWeatherInfo(weather);
-
-        }
-        else
-        {
-            //无缓存时去服务器查询天气
-            weatherId =getIntent().getStringExtra("weather_id");
-            binding.weatherLayout.setVisibility(View.INVISIBLE);
-            requestWeather(weatherId);
-
-        }
+        initLocation();
+        checkLocationPermission();
+        loadSaveWeatherInfo();
 
         //选择城市按键监听器
         binding.title.selectButton.setOnClickListener(new View.OnClickListener()
@@ -139,10 +109,10 @@ public class MainActivity  extends AppCompatActivity
             @Override
             public void onClick(View view)
             {
-//                binding.drawerLayout.openDrawer(GravityCompat.START);
 
-                Intent intent = new Intent(MainActivity.this, SearchCityActivity.class);
-                startActivityForResult(intent, 0);
+                Intent intent = new Intent(MainActivity.this, CityManagementActivity.class);
+
+                startActivity(intent);
             }
         });
 
@@ -153,12 +123,12 @@ public class MainActivity  extends AppCompatActivity
             public void onClick(View view)
             {
 
-                Intent intent =new Intent(MainActivity.this , SettingActivity.class);
-                MainActivity.this.startActivity(intent);
-               // binding.drawerLayout.openDrawer(GravityCompat.END);
+                Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+
+                startActivity(intent);
+                // binding.drawerLayout.openDrawer(GravityCompat.END);
             }
         });
-
 
         //设置下拉刷新的控件颜色
         binding.swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
@@ -168,7 +138,6 @@ public class MainActivity  extends AppCompatActivity
             @Override
             public void onRefresh()
             {
-                startLocation();
                 requestWeather(weatherId);
 
             }
@@ -176,23 +145,48 @@ public class MainActivity  extends AppCompatActivity
 
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == 1)
+    private void loadSaveWeatherInfo()
+    {
+
+        //得到存储的信息的对象 并从里面得到存储下来的weather和bing_pic
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String bingPic = prefs.getString("bing_pic", null);
+
+        //从数据库中得到城市信息
+        City mcity = DataSupport.find(City.class, 1);
+
+
+        if (bingPic != null)
         {
-            //closedrawerLayout(); //关闭显示的fragment
-//            Log.d(TAG,"返回天气信息");
-            setswipeRefresh(true);
-            setWeatherId(data.getStringExtra("weatherId"));
-            requestWeather(data.getStringExtra("weatherId"));
-            notShowLocationIcon();
+            Glide.with(this).load(bingPic).into(binding.bingPicImg); //将图片显示到bingPicImg控件上
+        }
+        else
+        {
+            loadBingPic();
+        }
+
+        if (mcity.getWeather() != null)
+        {
+            //有缓存时直接解析天气数据
+            Weather weather = Utility.handleWeatherResponse(mcity.getWeather());
+
+            weatherId = weather.basic.WeatherId;
+
+            showWeatherInfo(weather);
 
         }
-    }
+        else
+        {
+            //无缓存时定位当前位置
+//            weatherId =getIntent().getStringExtra("weather_id");
+            startLocation();
 
+            binding.weatherLayout.setVisibility(View.INVISIBLE);
+            requestWeather(weatherId);
+        }
+    }
 
     //高德定位初始化
     private void initLocation()
@@ -210,15 +204,14 @@ public class MainActivity  extends AppCompatActivity
                     if (aMapLocation.getErrorCode() == 0)
                     {
                         //可在其中解析amapLocation获取相应内容。
-                        String  district = aMapLocation.getDistrict();//城区信息
-                        String  province = aMapLocation.getProvince();//获取省信息
-                        SearchDistrict(district,province);
-
+                        String district = aMapLocation.getDistrict();//城区信息
+                        String province = aMapLocation.getProvince();//获取省信息
+                        SearchDistrict(district, province);
                     }
                     else
                     {
                         //定位失败时，可通过ErrCode（错误码）信息来确定失败的原因，errInfo是错误信息，详见错误码表。
-                        Log.e("AmapError","location Error, ErrCode:"
+                        Log.e("AmapError", "location Error, ErrCode:"
                                 + aMapLocation.getErrorCode() + ", errInfo:"
                                 + aMapLocation.getErrorInfo());
                     }
@@ -238,7 +231,6 @@ public class MainActivity  extends AppCompatActivity
         mLocationClient.setLocationOption(mLocationOption);
 
     }
-
 
 
     private void checkLocationPermission()
@@ -264,6 +256,17 @@ public class MainActivity  extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        //接收来自SearchCityActivity的信息
+//        weatherId = getIntent().getStringExtra("weatherId");
+//        requestWeather(weatherId);
+
+    }
+
+
     /**
      * 开始定位
      */
@@ -271,7 +274,9 @@ public class MainActivity  extends AppCompatActivity
     {
         // 启动定位
         mLocationClient.startLocation();
+        setswipeRefresh(true);
     }
+
     /**
      * 停止定位
      */
@@ -282,9 +287,9 @@ public class MainActivity  extends AppCompatActivity
     }
 
 
-    public void SearchDistrict(String city , final String province)
+    public void SearchDistrict(String city, final String province)
     {
-        final String searchUrl = "https://api.heweather.com/v5/search?city="+city+"&key=bc0418b57b2d4918819d3974ac1285d9";
+        final String searchUrl = "https://api.heweather.com/v5/search?city=" + city + "&key=bc0418b57b2d4918819d3974ac1285d9";
 
 
         HttpUtil.sendOkHttpRequest(searchUrl, new Callback()
@@ -302,20 +307,20 @@ public class MainActivity  extends AppCompatActivity
                 final String responseText = response.body().string();
                 final ArrayList<SearchCity> searchCityList = Utility.handleBasicResponse(responseText);
 
-                String  mpro = province.replace("省","");
+                String mpro = province.replace("省", "");
 
-                if(searchCityList!=null )
+                if (searchCityList != null)
                 {
-                    for(SearchCity searchCity:searchCityList)
+                    for (SearchCity searchCity : searchCityList)
                     {
-                       if(searchCity.basic.provinceName.equals(mpro)) //如果查询到相同的省名的话
-                       {
-                           //记录查询到天气id
-                           weatherId = searchCity.basic.WeatherId;
+                        if (searchCity.basic.provinceName.equals(mpro)) //如果查询到相同的省名的话
+                        {
+                            //记录查询到天气id
+                            weatherId = searchCity.basic.WeatherId;
 //                           binding.title.local.setVisibility(View.VISIBLE);
-                           showLocationIcon();
-                           break;
-                       }
+                            showLocationIcon();
+                            break;
+                        }
                     }
                 }
             }
@@ -324,11 +329,7 @@ public class MainActivity  extends AppCompatActivity
 
     public void requestWeather(final String weatherId)
     {
-        String weatherUrl = "http://guolin.tech/api/weather?cityid="+weatherId +"&key=bc0418b57b2d4918819d3974ac1285d9";
-
-//        //开启自动更新
-//        Intent intent = new Intent(this, AutoUpdateService.class);
-//        startService(intent);
+        String weatherUrl = "http://guolin.tech/api/weather?cityid=" + weatherId + "&key=bc0418b57b2d4918819d3974ac1285d9";
 
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback()
         {
@@ -341,38 +342,41 @@ public class MainActivity  extends AppCompatActivity
                     @Override
                     public void run()
                     {
-                        Toast.makeText(MainActivity.this,"更新请求失败", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "更新请求失败", Toast.LENGTH_SHORT).show();
                     }
                 });
-                binding.swipeRefresh.setRefreshing(false);
+//                binding.swipeRefresh.setRefreshing(false);
+                setswipeRefresh(false);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException
             {
-                final  String responseText =response.body().string();
-                final  Weather weather = Utility.handleWeatherResponse(responseText);
+                final String responseText = response.body().string();
+                final Weather weather = Utility.handleWeatherResponse(responseText);
                 runOnUiThread(new Runnable()
                 {
                     @Override
                     public void run()
                     {
-                        if(weather !=null && "ok".equals(weather.status))
+                        if (weather != null && "ok".equals(weather.status))
                         {
-                            SharedPreferences.Editor editor =PreferenceManager.
-                                    getDefaultSharedPreferences(MainActivity.this).edit();
-                            editor.putString("weather",responseText);
-                            editor.apply(); //提交数据
+//                            SharedPreferences.Editor editor =PreferenceManager.
+//                                    getDefaultSharedPreferences(MainActivity.this).edit();
+//                            editor.putString("weather",responseText);
+//                            editor.apply(); //提交数据
+                            Utility.updataCityInfo(weather.basic.cityName, weather.basic.WeatherId, responseText, 1);
 
                             showWeatherInfo(weather);
 
                         }
                         else
                         {
-                            Toast.makeText(MainActivity.this,"获取天气信息失败", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
                         }
 
-                        binding.swipeRefresh.setRefreshing(false);
+//                        binding.swipeRefresh.setRefreshing(false);
+                        setswipeRefresh(false);
                     }
                 });
 
@@ -398,9 +402,9 @@ public class MainActivity  extends AppCompatActivity
             @Override
             public void onResponse(Call call, Response response) throws IOException
             {
-                final String bingPic =response.body().string();
+                final String bingPic = response.body().string();
                 SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit();
-                editor.putString("bing_pic",bingPic);
+                editor.putString("bing_pic", bingPic);
                 editor.apply();
                 runOnUiThread(new Runnable()
                 {
@@ -415,9 +419,9 @@ public class MainActivity  extends AppCompatActivity
 
     }
 
-    private void  loadWeatherIcon(final String code,final ForecastItemBinding itemBinding)
+    private void loadWeatherIcon(final String code, final ForecastItemBinding itemBinding)
     {
-        final String requestBingPic = "https://cdn.heweather.com/cond_icon/"+code+".png";
+        final String requestBingPic = "https://cdn.heweather.com/cond_icon/" + code + ".png";
 
         runOnUiThread(new Runnable()
         {
@@ -434,8 +438,8 @@ public class MainActivity  extends AppCompatActivity
     private void showWeatherInfo(Weather weather)
     {
         String cirtName = weather.basic.cityName;
-        String updateTime = weather.basic.update.updateTime.split(" ")[1]+"更新"; //将字符串根据空格分成两段 取后面的时间
-        String degree = weather.now.temperature +"°";
+        String updateTime = weather.basic.update.updateTime.split(" ")[1] + "更新"; //将字符串根据空格分成两段 取后面的时间
+        String degree = weather.now.temperature + "°";
         String weatherInfo = weather.now.more.info;
         binding.title.titleCtiy.setText(cirtName);
         binding.now.titleUpdateTime.setText(updateTime);
@@ -443,16 +447,16 @@ public class MainActivity  extends AppCompatActivity
         binding.now.weatherInfoText.setText(weatherInfo);
         binding.forcast.forcastLayout.removeAllViews();
 
-        for (Forecast forecast:weather.forecastList)
+        for (Forecast forecast : weather.forecastList)
         {
-            final ForecastItemBinding itemBinding =  DataBindingUtil.inflate(LayoutInflater.from(this), R.layout.forecast_item,binding.forcast.forcastLayout,false);
+            final ForecastItemBinding itemBinding = DataBindingUtil.inflate(LayoutInflater.from(this), R.layout.forecast_item, binding.forcast.forcastLayout, false);
 
 
             itemBinding.dateText.setText(forecast.date);
             itemBinding.infoText.setText(forecast.more.txt_d);
-            itemBinding.maxText.setText(forecast.temperature.max+"°");
-            itemBinding.minText.setText(forecast.temperature.min+"°");
-            loadWeatherIcon(forecast.more.code_d,itemBinding);
+            itemBinding.maxText.setText(forecast.temperature.max + "°");
+            itemBinding.minText.setText(forecast.temperature.min + "°");
+            loadWeatherIcon(forecast.more.code_d, itemBinding);
 
 
             binding.forcast.forcastLayout.addView(itemBinding.getRoot());
@@ -461,16 +465,16 @@ public class MainActivity  extends AppCompatActivity
 
         ArrayList<BindingAdapterItem> items = new ArrayList<>();
 
-        for(HourlyForecast hourlyForecast:weather.hourlyForecastList)
+        for (HourlyForecast hourlyForecast : weather.hourlyForecastList)
         {
-            items.add(new HourlyForecaseItemBean(hourlyForecast.weatherInfo.txt,hourlyForecast.weatherInfo.code,hourlyForecast.date,hourlyForecast.temperature));
+            items.add(new HourlyForecaseItemBean(hourlyForecast.weatherInfo.txt, hourlyForecast.weatherInfo.code, hourlyForecast.date, hourlyForecast.temperature));
 
         }
 
         adapter.setItems(items);
         adapter.notifyDataSetChanged();
 
-        if(weather.aqi !=null)
+        if (weather.aqi != null)
         {
             binding.aqi.aqiText.setText(weather.aqi.city.aqi);
             binding.aqi.pm25Text.setText(weather.aqi.city.pm25);
@@ -494,13 +498,13 @@ public class MainActivity  extends AppCompatActivity
         }
 
 
-        String comfort = "舒适度:"+weather.suggestion.comfort.brief+"\n    "+weather.suggestion.comfort.text;
-        String carWash = "洗车指数:"+weather.suggestion.carwash.brief+"\n    "+weather.suggestion.carwash.text;
-        String sport = "运动建议:"+weather.suggestion.sport.brief+"\n    "+weather.suggestion.sport.text;
-        String dressSuggest = "穿衣指数:" +weather.suggestion.dressSuggest.brief +"\n    "+weather.suggestion.dressSuggest.text;
-        String fluIndex ="感冒指数:"+weather.suggestion.fluIndex.brief+"\n    "+weather.suggestion.fluIndex.text;
-        String travelIndex = "旅游指数:"+weather.suggestion.travelIndex.brief+"\n    "+weather.suggestion.travelIndex.text;
-        String uv = "紫外线指数:"+weather.suggestion.uv.brief+"\n    "+weather.suggestion.uv.text;
+        String comfort = "舒适度:" + weather.suggestion.comfort.brief + "\n    " + weather.suggestion.comfort.text;
+        String carWash = "洗车指数:" + weather.suggestion.carwash.brief + "\n    " + weather.suggestion.carwash.text;
+        String sport = "运动建议:" + weather.suggestion.sport.brief + "\n    " + weather.suggestion.sport.text;
+        String dressSuggest = "穿衣指数:" + weather.suggestion.dressSuggest.brief + "\n    " + weather.suggestion.dressSuggest.text;
+        String fluIndex = "感冒指数:" + weather.suggestion.fluIndex.brief + "\n    " + weather.suggestion.fluIndex.text;
+        String travelIndex = "旅游指数:" + weather.suggestion.travelIndex.brief + "\n    " + weather.suggestion.travelIndex.text;
+        String uv = "紫外线指数:" + weather.suggestion.uv.brief + "\n    " + weather.suggestion.uv.text;
 
         binding.suggestion.comfortText.setText(comfort);
         binding.suggestion.carWashText.setText(carWash);
@@ -530,6 +534,7 @@ public class MainActivity  extends AppCompatActivity
     {
         binding.title.local.setVisibility(View.VISIBLE);
     }
+
     //不显示定位标志
     public void notShowLocationIcon()
     {

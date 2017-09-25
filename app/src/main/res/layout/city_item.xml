@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
 
     >
 
@@ -11,59 +13,79 @@
 
     </data>
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  xmlns:tools="http://schemas.android.com/tools"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:layout_margin="15dp"
-
-                    >
-
-        <TextView
-            android:id="@+id/city_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="@{item.cityName}"
-            android:textSize="18dp"
-            />
-
-        <ImageView
-            android:tint="@color/colorPrimary"
-            android:id="@+id/islocation"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_gravity="center_vertical"
-            android:layout_toEndOf="@+id/city_name"
-            android:src="@drawable/location"
-            android:visibility="invisible"
-            />
+    <!--<com.admin.coolweather.Base.recycleview.SwipeItemLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content">-->
 
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-
+            android:layout_margin="15dp"
             >
 
             <TextView
-                android:id="@+id/temperature"
+                android:id="@+id/city_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{item.temperature}"
-                android:textSize="18sp"
+                android:layout_gravity="center_horizontal"
+                android:text="@{item.cityName}"
+                android:textSize="18dp"
                 />
 
-            <TextView
+            <!--<ImageView-->
+            <!--android:tint="@color/colorPrimary"-->
+            <!--android:id="@+id/islocation"-->
+            <!--android:layout_width="18dp"-->
+            <!--android:layout_height="18dp"-->
+            <!--android:layout_gravity="center_vertical"-->
+            <!--android:layout_toEndOf="@+id/city_name"-->
+            <!--android:src="@drawable/location"-->
+            <!--android:visibility="invisible"-->
+            <!--/>-->
+
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{item.weatherInfo}"
-                android:layout_below="@+id/temperature"
-                android:textSize="10sp"/>
+                android:layout_alignParentEnd="true"
+
+                >
+
+                <TextView
+                    android:id="@+id/temperature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{item.temperature}"
+                    android:textSize="18sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/temperature"
+                    android:text="@{item.weatherInfo}"
+                    android:textSize="10sp"/>
+
+            </RelativeLayout>
 
         </RelativeLayout>
 
-    </RelativeLayout>
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="match_parent">-->
+
+            <!--<Button-->
+                <!--android:id="@+id/delete"-->
+                <!--android:text="删除"-->
+                <!--android:textColor="#ffffff"-->
+                <!--android:textSize="16sp"-->
+                <!--android:background="@drawable/btn_delete"-->
+                <!--android:layout_width="100dp"-->
+                <!--android:layout_height="match_parent" />-->
+
+        <!--</LinearLayout>-->
+
+    <!--</com.admin.coolweather.Base.recycleview.SwipeItemLayout>-->
 
 
 </layout>

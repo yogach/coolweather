@@ -8,7 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.admin.coolweather.BR;
-import com.admin.coolweather.Base.OnItemClickListener;
+import com.admin.coolweather.Base.recycleview.OnItemClickListener;
+import com.admin.coolweather.Base.recycleview.OnItemLongClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,8 @@ public class BindingAdapter extends RecyclerView.Adapter<BindingAdapter.BindingH
     List<BindingAdapterItem> items = new ArrayList<>();
 
     private OnItemClickListener  mOnItemClickListener = null;
+
+    private OnItemLongClickListener mOnItemLongClickListener = null;
 
     public List<BindingAdapterItem> getItems()
     {
@@ -53,13 +56,19 @@ public class BindingAdapter extends RecyclerView.Adapter<BindingAdapter.BindingH
         this.mOnItemClickListener = OnItemClickListener;
     }
 
+    public void setmOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener)
+    {
+        this.mOnItemLongClickListener = onItemLongClickListener;
+    }
+
     /*
     * 数据绑定
     * */
     @Override
-    public void onBindViewHolder(BindingHolder holder, final int position)
+    public void onBindViewHolder(final BindingHolder holder, final int position)
     {
         holder.bindData(items.get(position));
+
 
         if(mOnItemClickListener!=null)
         {
@@ -74,7 +83,23 @@ public class BindingAdapter extends RecyclerView.Adapter<BindingAdapter.BindingH
 
         }
 
+        if(mOnItemLongClickListener !=null)
+        {
+            holder.itemView.setOnLongClickListener(new View.OnLongClickListener()
+            {
+                @Override
+                public boolean onLongClick(View view)
+                {
+                    mOnItemLongClickListener.onItemClick(view,position);
+                    return true ;
+                }
+            });
+
+        }
+
+
     }
+
 
     @Override
     public int getItemCount()
@@ -97,10 +122,10 @@ public class BindingAdapter extends RecyclerView.Adapter<BindingAdapter.BindingH
          * */
         public BindingHolder(ViewDataBinding binding)
         {
-
             super(binding.getRoot());
             this.binding = binding;
         }
+
 
         public void bindData(BindingAdapterItem item)
         {

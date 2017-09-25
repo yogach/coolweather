@@ -1,6 +1,7 @@
 package com.admin.coolweather.util;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.admin.coolweather.gson.Basic;
 import com.admin.coolweather.gson.SearchCity;
@@ -8,12 +9,14 @@ import com.admin.coolweather.gson.Weather;
 //import com.admin.coolweather.model.City;
 //import com.admin.coolweather.model.County;
 //import com.admin.coolweather.model.Province;
+import com.admin.coolweather.model.City;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.litepal.crud.DataSupport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,94 +27,58 @@ import java.util.List;
 
 public class Utility
 {
-//    /*解析和处理服务器返回的省级数据
-//    * */
-//    public static boolean handleProvinceResponse(String response)
-//    {
-//
-//        if(!TextUtils.isEmpty(response))
-//        {
-//            try
-//            {
-//                JSONArray allProvinces =new JSONArray(response);
-//                for (int i=0;i<allProvinces.length();i++)
-//                {
-//                    JSONObject provinceObject = allProvinces.getJSONObject(i);
-//                    Province provice = new Province();
-//                    provice.setProvinceName(provinceObject.getString("name"));
-//                    provice.setProvinceCode(provinceObject.getInt("id"));
-//                    provice.save(); //存入数据库
-//                }
-//                return true;
-//            }
-//            catch (JSONException e)
-//            {
-//                e.printStackTrace();
-//            }
-//
-//        }
-//        return false;
-//    }
-//
-//    /*
-//    * 处理市级数据
-//    * */
-//    public static boolean handleCityResponse(String response,int provinceId)
-//    {
-//        if(!TextUtils.isEmpty(response))
-//        {
-//            try
-//            {
-//                JSONArray allCities =new JSONArray(response);
-//                for (int i=0;i<allCities.length();i++)
-//                {
-//                    JSONObject cityObject = allCities.getJSONObject(i);
-//                    City city = new City();
-//                    city.setCityCode(cityObject.getInt("id"));
-//                    city.setCityName(cityObject.getString("name"));
-//                    city.setProvinceId(provinceId);
-//                    city.save();
-//                }
-//                return true;
-//            }
-//            catch (JSONException e)
-//            {
-//                e.printStackTrace();
-//            }
-//
-//        }
-//        return false;
-//    }
-//    /*
-//    * 处理县级数据
-//    * */
-//    public static boolean handleCountyResponse(String response,int cityId)
-//    {
-//        if(!TextUtils.isEmpty(response))
-//        {
-//            try
-//            {
-//                JSONArray allCounties =new JSONArray(response);
-//                for (int i=0;i<allCounties.length();i++)
-//                {
-//                    JSONObject countyObject = allCounties.getJSONObject(i);
-//                    County county = new County();
-//                    county.setCountyName(countyObject.getString("name"));
-//                    county.setWeatherId(countyObject.getString("weather_id"));
-//                    county.setCityid(cityId);
-//                    county.save();  //存入数据库中
-//                }
-//                return true;
-//            }
-//            catch (JSONException e)
-//            {
-//                e.printStackTrace();
-//            }
-//
-//        }
-//        return false;
-//    }
+    /*
+    * 新建城市数据
+    * */
+    public static boolean saveNewCityInfo(String cityName, String weatherId,String weather)
+    {
+        City city = new City();
+        city.setCityName(cityName);
+        city.setWeatherId(weatherId);
+        city.setWeather(weather);
 
+        return city.save();
+    }
+
+    /*
+    * 更新城市数据
+    * */
+    public static void updataCityInfo(String cityName, String weatherId,String weather,long position)
+    {
+        City city = new City();
+        city.setCityName(cityName);
+        city.setWeatherId(weatherId);
+        city.setWeather(weather);
+
+        city.update(position);
+    }
+
+    /*
+    * 删除城市信息
+    * */
+    public static void delectCityInfo(long position)
+    {
+        DataSupport.delete(City.class,position);
+    }
+
+    /*
+    * 查询城市是否存在
+    * */
+    public static boolean isCityexisted(String weatherId)
+    {
+//       City city = new City();
+
+        List<City> cityList = DataSupport.where("WeatherId = ?",weatherId).find(City.class);
+
+        if(cityList.size()==0)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
 
     /*
     * 将返回的JSON数据解析成Weather实体类
@@ -151,12 +118,7 @@ public class Utility
                 searchCity.add(new Gson().fromJson(searchContent,SearchCity.class));
             }
 
-//              Gson gson = new Gson();
-//              List<Basic> basicList = gson.fromJson(response,new TypeToken<List<Basic>>(){}.getType());
-//
-//              return basicList;
             return  searchCity;
-         //  return  new Gson().fromJson(searchContent,SearchCity.class);
         }
         catch (Exception e)
         {

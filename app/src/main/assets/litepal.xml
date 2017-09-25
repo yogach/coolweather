@@ -1,12 +1,10 @@
 <litepal>
     <dbname value="cool_weather" />
 
-    <version value ="1" />
+    <version value ="3" />
 
     <list>
         <mapping class ="com.admin.coolweather.model.City" />
-        <mapping class ="com.admin.coolweather.model.Province"/>
-        <mapping class ="com.admin.coolweather.model.County"/>
     </list>
 
  </litepal>
