@@ -49,8 +49,9 @@ public class SearchCityActivity extends AppCompatActivity
 
     private LinearLayoutManager manager;
 
-    ArrayList<String> cityInfo = new ArrayList<>();
+    private  ArrayList<String> cityInfo = new ArrayList<>();
 
+    private  ArrayList<SearchCity> searchCityList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -103,16 +104,17 @@ public class SearchCityActivity extends AppCompatActivity
 //                Toast.makeText(SearchCityActivity.this, "onClick事件  您点击了第：" + position + "个Item" + "对应weatherid为" + weatherIdList.get(position), LENGTH_SHORT).show();
 
                 //查询数据库 如果点击的城市不存在则存入数据库，反之不存
-                if (!Utility.isCityexisted(cityInfo.get(position).split("-")[0]))
+                if (!Utility.isCityexisted(searchCityList.get(position).basic.WeatherId))
                 {
-                    Utility.saveNewCityInfo(cityInfo.get(position).split("-")[1], cityInfo.get(position).split("-")[0], null);
+                    Utility.saveNewCityInfo(searchCityList.get(position).basic.cityName,searchCityList.get(position).basic.WeatherId, null);
                 }
 //                else
 //                {
 //                    Toast.makeText(SearchCityActivity.this, "城市已存在 请选择其他城市", LENGTH_SHORT).show();
 //
 //                }
-                EventBus.getDefault().post(new MessageEvent("finish"));
+                EventBus.getDefault().post(new MessageEvent("finish",null));
+                EventBus.getDefault().post(new MessageEvent("Refresh",null));
 //
 //                Intent intent=new Intent(SearchCityActivity.this,MainActivity.class);
 //                intent.putExtra("weatherId",cityInfo.get(position).split("-")[0]);
@@ -150,7 +152,8 @@ public class SearchCityActivity extends AppCompatActivity
             public void onResponse(Call call, Response response) throws IOException
             {
                 final String responseText = response.body().string();
-                final ArrayList<SearchCity> searchCityList = Utility.handleBasicResponse(responseText);
+                searchCityList.clear();
+                searchCityList = Utility.handleBasicResponse(responseText);
 
                 runOnUiThread(new Runnable()
                 {
@@ -159,7 +162,8 @@ public class SearchCityActivity extends AppCompatActivity
                     {
                         ArrayList<BindingAdapterItem> items = new ArrayList<>();
 
-                        cityInfo.clear();
+//                        cityInfo.clear();
+
                         for (SearchCity searchCity : searchCityList)
                         {
                             //如果输入的结果是对的 必定会返回一个或多个 status为ok数组项
@@ -167,7 +171,7 @@ public class SearchCityActivity extends AppCompatActivity
                             if (searchCity.status.equals("ok"))
                             {
                                 items.add(new SearchCityItemBean(searchCity.basic.cityName + "---" + searchCity.basic.provinceName + "---" + searchCity.basic.countryName));
-                                cityInfo.add(searchCity.basic.WeatherId + "-" + searchCity.basic.cityName);
+//                                cityInfo.add(searchCity.basic.WeatherId + "-" + searchCity.basic.cityName);
                             }
                             else if (searchCity.status.equals("unknown city"))
                             {

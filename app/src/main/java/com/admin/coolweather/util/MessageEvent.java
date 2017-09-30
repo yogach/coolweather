@@ -8,9 +8,13 @@ public class MessageEvent
 {
     private String message;
 
-    public MessageEvent(String message)
+    private String extraString;
+
+
+    public MessageEvent(String message,String extraString)
     {
         this.message = message;
+        this.extraString = extraString;
     }
 
     public String getMessage()
@@ -23,4 +27,13 @@ public class MessageEvent
         this.message = message;
     }
 
+    public String getExtraString()
+    {
+        return extraString;
+    }
+
+    public void setExtraString(String extraString)
+    {
+        this.extraString = extraString;
+    }
 }

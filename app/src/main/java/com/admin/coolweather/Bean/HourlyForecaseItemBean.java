@@ -6,10 +6,12 @@ import android.databinding.Bindable;
 import android.databinding.BindingAdapter;
 import android.widget.ImageView;
 
+
+import com.admin.coolweather.BR;
 import com.admin.coolweather.R;
 import com.admin.coolweather.adapter.BindingAdapterItem;
 import com.bumptech.glide.Glide;
-import com.admin.coolweather.BR;
+
 
 /**
  * Created by admin on 2017/9/4.
@@ -25,7 +27,7 @@ public class HourlyForecaseItemBean extends BaseObservable implements BindingAda
     @Override
     public int getViewType()
     {
-        return R.layout.recycler_item;
+        return R.layout.hourlyforecaseitem;
     }
 
     public HourlyForecaseItemBean(String info, String code, String date, String temperature)

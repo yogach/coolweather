@@ -31,6 +31,8 @@ import org.litepal.crud.DataSupport;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.widget.Toast.LENGTH_SHORT;
+
 /**
  * Created by admin on 2017/9/12.
  */
@@ -44,9 +46,12 @@ public class CityManagementActivity extends AppCompatActivity
 
     private ArrayList<BindingAdapterItem> items = new ArrayList<>();
 
-    private ArrayList<String> weatherIdList = new ArrayList<>();
+//    private ArrayList<String> weatherIdList = new ArrayList<>();
 
     private LinearLayoutManager manager;
+
+
+    private List<City> cityList = new ArrayList<>();//从数据库中读取出来的城市列表
 
 
 //    public final static instance = this;
@@ -98,6 +103,7 @@ public class CityManagementActivity extends AppCompatActivity
     protected void onDestroy()
     {
         super.onDestroy();
+        EventBus.getDefault().post(new MessageEvent("Refresh",null));
         //取消注册事件
         EventBus.getDefault().unregister(this);
 
@@ -115,27 +121,33 @@ public class CityManagementActivity extends AppCompatActivity
     private void quayCities()
     {
         //市列表
-        List<City> cityList;
+
+        cityList.clear();
+        items.clear();
 
         cityList = DataSupport.findAll(City.class);
 
-        items.clear();
-
-        if(cityList.size()>0)
+        if (cityList != null & cityList.size() > 0)
         {
-          for(City city:cityList)
-          {
+            for (City city : cityList)
+            {
 //              if (city.getWeather() != null)
 //              {
-              Weather weather = Utility.handleWeatherResponse(city.getWeather());
-//                  items.add(new CityManagementItemBean(city.getCityName(), weather.now.temperature + "°", weather.now.more.info));
-              items.add(new CityManagementItemBean(city.getCityName(), null, null));
-              weatherIdList.add(city.getWeatherId());
+                Weather weather = Utility.handleWeatherResponse(city.getWeather());
+                if(weather!=null)
+                {
+                    items.add(new CityManagementItemBean(city.getCityName(), weather.now.temperature + "°", weather.now.more.info));
+                }
+                else
+                {
+                     items.add(new CityManagementItemBean(city.getCityName(), null, null));
+                }
+//              weatherIdList.add(city.getWeatherId());
 //              }
-          }
-          refrshItem();
-        }
+            }
 
+        }
+        refrshItem();
     }
 
 
@@ -155,20 +167,15 @@ public class CityManagementActivity extends AppCompatActivity
         manager.setOrientation(LinearLayoutManager.VERTICAL);
 
 
-
-
         adapter.setOnItemClickListener(new OnItemClickListener()
         {
             @Override
             public void onItemClick(int position)
             {
-//                Toast.makeText(CityManagementActivity.this, "onClick事件  您点击了第：" + position + "个Item" + "对应weatherid为" + weatherIdList.get(position), LENGTH_SHORT).show();
+//                Toast.makeText(CityManagementActivity.this, "onClick事件  您点击了第：" + position + "个Item" + "对应weatherid为" + cityList.get(position).getWeatherId(), LENGTH_SHORT).show();
 
-                //跳转到mainactivity执行
-//                Intent intent = new Intent();
-//                intent.putExtra("weatherId",weatherIdList.get(position));
-//                startActivity(intent);
-//                CityManagementActivity.this.finish();  //结束activity
+                EventBus.getDefault().post(new MessageEvent("onItemClick",cityList.get(position).getWeatherId()));
+                finish();
 
             }
         });
@@ -176,10 +183,10 @@ public class CityManagementActivity extends AppCompatActivity
         adapter.setmOnItemLongClickListener(new OnItemLongClickListener()
         {
             @Override
-            public void onItemClick(View view,int position)
+            public void onItemClick(View view, int position)
             {
-//                Toast.makeText(CityManagementActivity.this, "onLongClick事件  您点击了第：" + position + "个Item" + "对应weatherid为" + weatherIdList.get(position), LENGTH_SHORT).show();
-                showPopMenu(view,position);
+//                Toast.makeText(CityManagementActivity.this, "onLongClick事件  您点击了第：" + position + "个Item" + "对应weatherid为" + cityList.get(position).getWeatherId(), LENGTH_SHORT).show();
+                showPopMenu(view, position);
             }
         });
 
@@ -200,9 +207,11 @@ public class CityManagementActivity extends AppCompatActivity
         {
             public boolean onMenuItemClick(MenuItem item)
             {
+                City mcity = cityList.get(position);
 
-//                myAdapter.removeItem(pos);
-                Utility.delectCityInfo(position+1);
+                Utility.delectCityInfo(mcity.getWeatherId());
+
+                EventBus.getDefault().post(new MessageEvent("Refresh",null));
 
                 quayCities();
                 return false;

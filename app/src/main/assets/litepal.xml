@@ -1,7 +1,7 @@
 <litepal>
     <dbname value="cool_weather" />
 
-    <version value ="3" />
+    <version value ="8" />
 
     <list>
         <mapping class ="com.admin.coolweather.model.City" />

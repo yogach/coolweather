@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+    >
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical">
+
+        <!--<android.support.v4.widget.SwipeRefreshLayout-->
+            <!--android:id="@+id/swipe_refresh"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--&gt;-->
+
+            <ScrollView
+                android:id="@+id/weather_scrollview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:overScrollMode="never"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    >
+
+
+                    <include
+                        android:id="@+id/now"
+                        layout="@layout/now"/>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/recylerview"
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:layout_centerVertical="true"
+                        android:background="#8000"
+                        android:gravity="center"
+                        android:scrollbars="none"
+                        />
+
+                    <include
+                        android:id="@+id/forcast"
+                        layout="@layout/forecast"/>
+
+                    <include
+                        android:id="@+id/aqi"
+                        layout="@layout/aqi"/>
+
+                    <include
+                        android:id="@+id/suggestion"
+                        layout="@layout/suggestion"/>
+
+                </LinearLayout>
+            </ScrollView>
+
+        <!--</android.support.v4.widget.SwipeRefreshLayout>-->
+
+    </LinearLayout>
+</layout>

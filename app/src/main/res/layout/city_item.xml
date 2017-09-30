@@ -32,16 +32,16 @@
                 android:textSize="18dp"
                 />
 
-            <!--<ImageView-->
-            <!--android:tint="@color/colorPrimary"-->
-            <!--android:id="@+id/islocation"-->
-            <!--android:layout_width="18dp"-->
-            <!--android:layout_height="18dp"-->
-            <!--android:layout_gravity="center_vertical"-->
-            <!--android:layout_toEndOf="@+id/city_name"-->
-            <!--android:src="@drawable/location"-->
-            <!--android:visibility="invisible"-->
-            <!--/>-->
+            <ImageView
+                android:id="@+id/islocation"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center_vertical"
+                android:layout_toEndOf="@+id/city_name"
+                android:src="@drawable/location"
+                android:tint="@color/colorPrimary"
+                android:visibility="gone"
+                />
 
             <RelativeLayout
                 android:layout_width="wrap_content"

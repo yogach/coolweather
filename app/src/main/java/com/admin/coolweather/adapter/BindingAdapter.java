@@ -77,7 +77,8 @@ public class BindingAdapter extends RecyclerView.Adapter<BindingAdapter.BindingH
                 @Override
                 public void onClick(View v)
                 {
-                    mOnItemClickListener.onItemClick(position);
+                    int pos = holder.getLayoutPosition();
+                    mOnItemClickListener.onItemClick(pos);
                 }
             });
 
@@ -90,7 +91,8 @@ public class BindingAdapter extends RecyclerView.Adapter<BindingAdapter.BindingH
                 @Override
                 public boolean onLongClick(View view)
                 {
-                    mOnItemLongClickListener.onItemClick(view,position);
+                    int pos = holder.getLayoutPosition();
+                    mOnItemLongClickListener.onItemClick(view,pos);
                     return true ;
                 }
             });

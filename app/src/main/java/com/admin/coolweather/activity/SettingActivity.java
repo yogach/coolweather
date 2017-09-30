@@ -4,9 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -114,9 +112,9 @@ public class SettingActivity extends AppCompatActivity
     {
         final AlertDialog dialog = new AlertDialog.Builder(SettingActivity.this).create();
 
-        dialog.setView(LayoutInflater.from(SettingActivity.this).inflate(R.layout.alert_dialog, null));
+        dialog.setView(LayoutInflater.from(SettingActivity.this).inflate(R.layout.settime_dialog, null));
         dialog.show();
-        dialog.getWindow().setContentView(R.layout.alert_dialog);
+        dialog.getWindow().setContentView(R.layout.settime_dialog);
 
 
         Button btnPositive = (Button) dialog.findViewById(R.id.btn_Positive);

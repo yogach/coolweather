@@ -37,28 +37,34 @@ public class Utility
         city.setWeatherId(weatherId);
         city.setWeather(weather);
 
+
         return city.save();
     }
 
     /*
     * 更新城市数据
+    * 根据weatherId来更新数据，weatherId是唯一的
     * */
-    public static void updataCityInfo(String cityName, String weatherId,String weather,long position)
+    public static void updataCityInfo(String cityName, String weatherId,String weather)
     {
         City city = new City();
         city.setCityName(cityName);
         city.setWeatherId(weatherId);
         city.setWeather(weather);
 
-        city.update(position);
+
+        city.updateAll("weatherId = ?",weatherId);
+
     }
 
     /*
     * 删除城市信息
+    * 根据weatherId来删除数据，weatherId是唯一的
     * */
-    public static void delectCityInfo(long position)
+    public static void delectCityInfo(String weatherId)
     {
-        DataSupport.delete(City.class,position);
+//        DataSupport.delete(City.class,position);
+        DataSupport.deleteAll(City.class,"weatherId = ?",weatherId);
     }
 
     /*
@@ -66,8 +72,6 @@ public class Utility
     * */
     public static boolean isCityexisted(String weatherId)
     {
-//       City city = new City();
-
         List<City> cityList = DataSupport.where("WeatherId = ?",weatherId).find(City.class);
 
         if(cityList.size()==0)
@@ -101,6 +105,9 @@ public class Utility
     }
 
 
+    /*
+    * 解析返回的城市搜索结果
+    * */
     public static ArrayList<SearchCity> handleBasicResponse(String response)
     {
         try

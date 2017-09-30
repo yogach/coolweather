@@ -11,10 +11,15 @@ import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
 
 import com.admin.coolweather.gson.Weather;
+import com.admin.coolweather.model.City;
 import com.admin.coolweather.util.HttpUtil;
 import com.admin.coolweather.util.Utility;
 
+import org.litepal.crud.DataSupport;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -24,6 +29,7 @@ public class AutoUpdateService extends Service
 {
     private int time;
     private boolean isautoupdate = false;
+    private List<City> cityList = new ArrayList<City>();
 
     @Override
     public IBinder onBind(Intent intent)
@@ -51,9 +57,10 @@ public class AutoUpdateService extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        if(isautoupdate)
+        if (isautoupdate)
         {
-            updateWeather();
+            loadCityWeather();
+//            updateWeather();
             updateBingPIc();
             AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
@@ -72,53 +79,67 @@ public class AutoUpdateService extends Service
         return super.onStartCommand(intent, flags, startId);
     }
 
-    /*
-    * 更新天气信息
-    * */
-    private  void updateWeather()
+
+    private void loadCityWeather()
     {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String weatherString = prefs.getString("weather",null);
-        if(weatherString != null)
+        cityList.clear();
+        cityList = DataSupport.findAll(City.class);
+
+        if (cityList != null & cityList.size() > 0)
         {
-            Weather weather = Utility.handleWeatherResponse(weatherString);
-            String weatherId = weather.basic.WeatherId;
-            String weatherUrl = "http://guolin.tech/api/weather?cityid="+weatherId+"&key=bc0418b57b2d4918819d3974ac1285d9";
-            HttpUtil.sendOkHttpRequest(weatherUrl, new Callback()
+            for (int i = 0; i < cityList.size(); i++)
             {
-                @Override
-                public void onFailure(Call call, IOException e)
-                {
-                    e.printStackTrace();
-                }
+                requestWeather(cityList.get(i).getWeatherId());
+            }
 
-                @Override
-                public void onResponse(Call call, Response response) throws IOException
-                {
-                    String responText = response.body().string();
-                    Weather mweather = Utility.handleWeatherResponse(responText);
-                    if(mweather != null && "ok".equals(mweather.status))
-                    {
-                        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit();
-                        editor.putString("weather",responText);
-                        editor.apply();
-
-                    }
-
-                }
-            });
+        }
+        else
+        {
 
         }
 
+    }
+
+    /*
+    * 更新天气信息
+    * */
+    private void requestWeather(String weatherId)
+    {
+        String weatherUrl = "http://guolin.tech/api/weather?cityid=" + weatherId + "&key=bc0418b57b2d4918819d3974ac1285d9";
+        HttpUtil.sendOkHttpRequest(weatherUrl, new Callback()
+        {
+            @Override
+            public void onFailure(Call call, IOException e)
+            {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException
+            {
+                String responseText = response.body().string();
+                Weather weather = Utility.handleWeatherResponse(responseText);
+                if (weather != null && "ok".equals(weather.status))
+                {
+//                        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit();
+//                        editor.putString("weather",responText);
+//                        editor.apply();
+
+                    Utility.updataCityInfo(weather.basic.cityName, weather.basic.WeatherId, responseText);
+
+                }
+
+            }
+        });
 
     }
 
     /*
     * 更新每日一图
     * */
-    private void  updateBingPIc()
+    private void updateBingPIc()
     {
-        String  requestBingPic = "http://guolin.tech/api/bing_pic";
+        String requestBingPic = "http://guolin.tech/api/bing_pic";
         HttpUtil.sendOkHttpRequest(requestBingPic, new Callback()
         {
             @Override
@@ -130,9 +151,9 @@ public class AutoUpdateService extends Service
             @Override
             public void onResponse(Call call, Response response) throws IOException
             {
-                String bingPic =response.body().string();
+                String bingPic = response.body().string();
                 SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit();
-                editor.putString("bing_pic",bingPic);
+                editor.putString("bing_pic", bingPic);
                 editor.apply();
 
             }
